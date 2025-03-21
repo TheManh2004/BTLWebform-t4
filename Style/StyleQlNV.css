@@ -1,0 +1,318 @@
+﻿body {
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    height: 100vh;
+    background-color: #f4f1e1;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 250px;
+    background-color: #6F4E37;
+    color: white;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+    .sidebar h2 {
+        margin-bottom: 20px;
+        margin-left: 10px;
+    }
+
+    .sidebar a {
+        text-decoration: none;
+        color: white;
+        padding: 10px;
+        border-radius: 5px;
+        display: block;
+    }
+
+        .sidebar a:hover {
+            background-color: #D2B48C;
+        }
+
+.box1 {
+    text-decoration: none;
+    color: white;
+    border-radius: 5px;
+    display: block;
+    text-align: center;
+    cursor: pointer;
+}
+
+.box1 {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 80px;
+}
+
+    .box1:hover {
+        background-color: #D2B48C;
+    }
+
+/* Submenu */
+.submenu {
+    display: none;
+    flex-direction: column;
+    margin-left: 20px;
+    padding-top: 10px;
+}
+
+    .submenu a {
+        text-decoration: none;
+        color: white;
+        padding: 8px;
+        border-radius: 5px;
+    }
+
+        .submenu a:hover {
+            background-color: #D2B48C;
+        }
+
+/* Rotate icon */
+.rotate {
+    transition: transform 0.3s ease;
+}
+
+.rotate-down {
+    transform: rotate(90deg);
+}
+
+.btnlogout {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 16px;
+    text-decoration: none;
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    text-align: left;
+    cursor: pointer;
+}
+
+    .btnlogout:hover {
+        background-color: #D2B48C;
+    }
+
+/*main-content*/
+.main-content {
+    flex: 1;
+    background-color: #FFF8DC;
+    padding: 20px;
+    overflow-y: auto;
+    width: 1204px;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    margin-top: 15px;
+}
+
+    .header h1 {
+        font-size: 28px;
+        margin: 0;
+        color: #6F4E37;
+    }
+
+    .header .notification {
+        font-size: 20px;
+        color: #6F4E37;
+    }
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 30px;
+}
+
+table, th, td {
+    border: 1px solid #6F4E37;
+}
+
+th, td {
+    padding: 12px;
+    text-align: center;
+}
+
+th {
+    background-color: #fff;
+    color: #6F4E37;
+}
+
+td {
+    background-color: #fff;
+    color: #6F4E37;
+}
+
+.actions .edit {
+    background-color: #4CAF50;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+}
+
+.actions .delete {
+    background-color: #F2BB42;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+}
+
+    .actions .edit:hover,
+    .actions .delete:hover {
+        opacity: 0.8;
+    }
+
+.menu-container {
+    padding: 20px;
+    border-radius: 8px;
+    background-color: #fff;
+    margin: 20px auto;
+    box-shadow: 4px 8px 20px rgba(210, 180, 140, 0.9);
+}
+
+    .menu-container hr {
+        border: 0;
+        border-top: 2px solid #6B3E2F;
+        margin: 20px -20px;
+    }
+
+.search {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.search-container {
+    position: relative;
+    display: inline-block;
+}
+
+.txtSearch {
+    padding: 10px;
+    padding-right: 35px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    font-size: 16px;
+    width: 500px;
+}
+
+.search-icon {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6F4E37;
+    font-size: 16px;
+    padding-left: 8px;
+}
+
+.btnAdd {
+    background-color: #D2B48C;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    width: 200px;
+    height: 40px;
+}
+
+    .btnAdd:hover {
+        background-color: #8B5E3B;
+    }
+
+/* Modal CSS */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-color: rgba(0,0,0,0.4);
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 5% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 40%;
+    max-height: 80vh;
+    overflow-y: auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    position: relative;
+}
+
+    .modal-content h2 {
+        color: #6F4E37;
+        margin-top: 0;
+    }
+
+    .modal-content label {
+        display: block;
+        margin: 10px 0 5px;
+        color: #6F4E37;
+    }
+
+    .modal-content input, .modal-content select {
+        width: 100%;
+        padding: 8px;
+        margin-bottom: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        box-sizing: border-box;
+    }
+
+.modal-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.btnSave, .btnCancel {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.btnSave {
+    background-color: #4CAF50;
+    color: white;
+}
+
+    .btnSave:hover {
+        background-color: #45a049;
+    }
+
+.btnCancel {
+    background-color: #f44336;
+    color: white;
+}
+
+    .btnCancel:hover {
+        background-color: #da190b;
+    }
+
+body.modal-open {
+    overflow: hidden;
+}

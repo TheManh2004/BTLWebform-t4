@@ -1,0 +1,244 @@
+﻿body {
+    font-family: 'Roboto', sans-serif;
+    display: flex;
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+}
+/* Sidebar */
+.sidebar {
+    width: 250px;
+    background-color: #6F4E37;
+    color: white;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+    .sidebar h2 {
+        margin-bottom: 20px;
+        margin-left: 10px;
+    }
+
+    .sidebar a {
+        text-decoration: none;
+        color: white;
+        padding: 10px;
+        border-radius: 5px;
+        display: block;
+    }
+
+        .sidebar a:hover {
+            background-color: #D2B48C;
+        }
+
+.box1 {
+    text-decoration: none;
+    color: white;
+    border-radius: 5px;
+    display: block;
+    text-align: center;
+    cursor: pointer;
+}
+
+.box1 {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 80px;
+}
+
+    .box1:hover {
+        background-color: #D2B48C;
+    }
+
+/* Submenu */
+.submenu {
+    display: none;
+    flex-direction: column;
+    margin-left: 20px;
+    padding-top: 10px;
+}
+
+    .submenu a {
+        text-decoration: none;
+        color: white;
+        padding: 8px;
+        border-radius: 5px;
+    }
+
+        .submenu a:hover {
+            background-color: #D2B48C;
+        }
+
+/* Rotate icon */
+.rotate {
+    transition: transform 0.3s ease;
+}
+
+.rotate-down {
+    transform: rotate(90deg);
+}
+
+.btnlogout {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 16px;
+    text-decoration: none;
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    text-align: left;
+    cursor: pointer;
+}
+
+    .btnlogout:hover {
+        background-color: #D2B48C;
+    }
+
+
+
+/*main-content*/
+.main-content {
+    flex: 1;
+    background-color: #FFF8DC;
+    padding: 20px;
+    overflow-y: auto;
+    width: 1204px;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    margin-top: 15px;
+}
+
+    .header h1 {
+        font-size: 28px;
+        margin: 0;
+        color: #6F4E37;
+    }
+
+    .header .notification {
+        font-size: 20px;
+        color: #6F4E37;
+    }
+
+.menu-container {
+    padding: 20px;
+    border-radius: 8px;
+    background-color: #fff;
+    margin: 20px auto;
+    box-shadow: 4px 8px 20px rgba(210, 180, 140, 0.9);
+}
+
+    .menu-container hr {
+        border: 0;
+        border-top: 2px solid #6B3E2F;
+        margin: 20px -20px;
+    }
+
+.search-container {
+    margin: 20px 0;
+    display: flex;
+    align-items: center;
+    gap: 30px;
+}
+
+.search-box {
+    padding: 10px;
+    width: 450px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.btn-search {
+    background-color: #D2B48C; /* Màu nền của nút */
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 150px;
+    font-size: 16px;
+}
+
+    .btn-search:hover {
+        background-color: #8B5E3B;
+    }
+
+.gridview {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+    .gridview th, .gridview td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+        color: #6F4E37;
+    }
+
+    .gridview th {
+        background-color: #fff;
+    }
+
+/* Search Container */
+
+/* Dropdown */
+.dropdown {
+    padding: 10px 15px; /* Padding lớn hơn một chút cho dễ nhìn */
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+    color: #6F4E37;
+    background-color: #fff;
+    cursor: pointer;
+    transition: all 0.3s ease; /* Hiệu ứng chuyển đổi mượt mà */
+    width: 472px; /* Độ rộng cố định cho dropdown */
+}
+
+    .dropdown:focus {
+        outline: none;
+        border-color: #D2B48C; /* Đổi màu viền khi focus */
+        box-shadow: 0 0 5px rgba(210, 180, 140, 0.5); /* Hiệu ứng bóng nhẹ */
+    }
+
+/* Export Button */
+.btn-export {
+    width: 151px;
+    background-color: #D2B48C;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease; /* Hiệu ứng đổi màu mượt mà */
+}
+
+    .btn-export:hover {
+        background-color: #8B5E3B; /* Màu tối hơn khi hover */
+    }
+
+/* Update Button */
+.btn-update {
+    width: 150px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease; /* Hiệu ứng đổi màu mượt mà */
+}
+
+    .btn-update:hover {
+        background-color: #45a049; /* Màu tối hơn khi hover */
+    }

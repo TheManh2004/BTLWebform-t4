@@ -47,7 +47,7 @@ namespace BTL.View
         private bool ValidateUser(string username, string password)
         {
             // Tài khoản cụ thể: admin / MatcCoffee123
-            return (username.ToLower() == "admin" && password == "MatcCoffee123");
+            return (username.ToLower() == "admin" && password == "12345678");
         }
 
         protected void lnkForgotPassword_Click(object sender, EventArgs e)

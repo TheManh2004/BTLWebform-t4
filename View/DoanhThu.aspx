@@ -14,7 +14,7 @@
     <!-- Sidebar -->
     <div class="sidebar">
         <h2>MENU</h2>
-        <a href="#">Bán hàng</a>
+        <a href="Dashboard.aspx">Bán hàng</a>
         <a href="tongquan.aspx">Tổng quan</a>
         <a href="SoDoBan.aspx">Sơ đồ bàn</a>
         <div class="box1" >

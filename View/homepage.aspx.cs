@@ -1,14 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+using System.Data.SqlClient;
 using System.Web.UI;
-using System.Web.UI.WebControls;
 
 namespace BTL.View
 {
     public partial class homepage : System.Web.UI.Page
     {
+        // Chuỗi kết nối đến SQL Server (cập nhật với thông tin kết nối thực tế của bạn)
+        private string connectionString = "Server=DESKTOP-9UGDVKE\\SQLEXPRESS;Database=qlQuanCafe2;Integrated Security=True;";
+
         protected void Page_Load(object sender, EventArgs e)
         {
             if (!IsPostBack)
@@ -33,8 +33,17 @@ namespace BTL.View
             // Kiểm tra thông tin đăng nhập
             if (ValidateUser(user, pass))
             {
-                Session["Username"] = user;
-                Response.Redirect("tongquan.aspx"); // Chuyển hướng đến trang tổng quan
+                // Sau khi đăng nhập thành công, kiểm tra quyền của người dùng và chuyển hướng tương ứng
+                string role = GetUserRole(user);
+
+                if (role == "1") // Giả sử "1" là admin
+                {
+                    Response.Redirect("tongquan.aspx"); // Nếu là admin, chuyển hướng tới trang tổng quan
+                }
+                else
+                {
+                    Response.Redirect("BanHang.aspx"); // Nếu không phải admin, chuyển hướng tới trang bán hàng
+                }
             }
             else
             {
@@ -43,34 +52,37 @@ namespace BTL.View
             }
         }
 
-        // Kiểm tra thông tin đăng nhập với tài khoản cụ thể
+        // Kiểm tra thông tin đăng nhập từ SQL Server
         private bool ValidateUser(string username, string password)
         {
-            // Tài khoản cụ thể: admin / MatcCoffee123
-            return (username.ToLower() == "admin" && password == "12345678");
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                string query = "SELECT COUNT(*) FROM [Account] WHERE UserName = @UserName AND PassWord = @Password";
+
+                SqlCommand command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@UserName", username);
+                command.Parameters.AddWithValue("@Password", password);
+
+                connection.Open();
+                int userCount = (int)command.ExecuteScalar();
+
+                return userCount > 0; // Nếu số lượng người dùng lớn hơn 0, tức là có tài khoản trùng khớp
+            }
         }
 
-        protected void lnkForgotPassword_Click(object sender, EventArgs e)
+        // Lấy vai trò của người dùng (admin hoặc nhân viên)
+        private string GetUserRole(string username)
         {
-            string user = username.Text.Trim();
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                // Cập nhật truy vấn để lấy cột idRole thay vì Role
+                string query = "SELECT idRole FROM [Account] WHERE UserName = @UserName";
 
-            if (string.IsNullOrEmpty(user))
-            {
-                ScriptManager.RegisterStartupScript(this, GetType(), "alert",
-                    "alert('Vui lòng nhập tên đăng nhập');", true);
-                return;
-            }
+                SqlCommand command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@UserName", username);
 
-            if (user.ToLower() == "admin")
-            {
-                // Giả lập gửi email
-                ScriptManager.RegisterStartupScript(this, GetType(), "alert",
-                    "alert('Link khôi phục mật khẩu đã được gửi tới email của admin. Vui lòng kiểm tra hộp thư!');", true);
-            }
-            else
-            {
-                ScriptManager.RegisterStartupScript(this, GetType(), "alert",
-                    "alert('Tên đăng nhập không tồn tại');", true);
+                connection.Open();
+                return command.ExecuteScalar()?.ToString(); // Trả về giá trị của idRole (1 = admin, 2 = nhân viên...)
             }
         }
     }

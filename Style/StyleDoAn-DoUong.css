@@ -196,7 +196,7 @@
     display: flex;
     align-items: center;
     justify-content: start;
-    gap: 114px;
+    gap: 120px;
 }
 
 /* Table */
@@ -225,37 +225,32 @@ td {
     color: #6F4E37;
 }
 
-.actions {
-    /*            display: flex;
-           justify-content: center;
-           gap: 10px;*/
+.edit {
+    background-color: #4CAF50;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
 }
 
-    .actions .edit {
-        background-color: #4CAF50;
-        color: white;
-        padding: 6px 12px;
-        border-radius: 5px;
-        border: none;
-        cursor: pointer;
-    }
+.delete {
+    background-color: #F2BB42;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+}
 
-    .actions .delete {
-        background-color: #F2BB42;
-        color: white;
-        padding: 6px 12px;
-        border-radius: 5px;
-        border: none;
-        cursor: pointer;
-    }
-
-        .actions .delete:hover {
-            opacity: 0.8;
-        }
-
-    .actions .edit:hover {
+    .delete:hover {
         opacity: 0.8;
     }
+
+.edit:hover {
+    opacity: 0.8;
+}
+
 
 
 .menu-container {

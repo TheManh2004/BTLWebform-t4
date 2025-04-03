@@ -33,6 +33,15 @@ namespace BTL.View
         protected global::System.Web.UI.WebControls.HiddenField hdnCurrentFloor;
 
         /// <summary>
+        /// hdnAreaId control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.HiddenField hdnAreaId;
+
+        /// <summary>
         /// BtnLogout control.
         /// </summary>
         /// <remarks>
@@ -60,31 +69,13 @@ namespace BTL.View
         protected global::System.Web.UI.HtmlControls.HtmlGenericControl floorButtons;
 
         /// <summary>
-        /// btnFloor1 control.
+        /// floorButtonsRepeater control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnFloor1;
-
-        /// <summary>
-        /// btnFloor2 control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnFloor2;
-
-        /// <summary>
-        /// btnFloor3 control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnFloor3;
+        protected global::System.Web.UI.WebControls.Repeater floorButtonsRepeater;
 
         /// <summary>
         /// btnAddArea control.
@@ -103,6 +94,15 @@ namespace BTL.View
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.HtmlControls.HtmlGenericControl tableContainer;
+
+        /// <summary>
+        /// repeaterTables control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Repeater repeaterTables;
 
         /// <summary>
         /// btnAddTable control.

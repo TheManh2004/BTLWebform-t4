@@ -63,39 +63,38 @@
                 <asp:TextBox ID="txtSearch" class="txtSearch" runat="server" placeholder="Tìm kiếm theo tên..." />
                 <asp:Button ID="btnSearch" class="btnSearch" runat="server" Text="Tìm kiếm" OnClick="btnSearch_Click" />
             </div>
-            <table>
-                <thead>
-                    <tr>
-                        <th>STT</th>
-                        <th>Tên nhóm</th>
-                        <th>Trạng thái</th>
-                        <th>Ghi chú</th>
-                        <th>Thao tác</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>1</td>
-                        <td>Đồ ăn sáng</td>
-                        <td>Hoạt động</td>
-                        <td></td>
-                        <td class="actions">
-                            <asp:Button ID="btnEdit1" runat="server" Text="Cập nhật" CssClass="edit" OnClick="btnEdit_Click" />
-                            <asp:Button ID="btnDelete1" runat="server" Text="Xóa" CssClass="delete" OnClick="btnDelete_Click" />
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>2</td>
-                        <td>Đồ uống</td>
-                        <td>Ngừng hoạt động</td>
-                        <td></td>
-                        <td class="actions">
-                            <asp:Button ID="btnEdit2" runat="server" Text="Cập nhật" CssClass="edit" OnClick="btnEdit_Click" />
-                            <asp:Button ID="btnDelete2" runat="server" Text="Xóa" CssClass="delete" OnClick="btnDelete_Click" />
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+                      <asp:GridView ID="GridView1" runat="server" AutoGenerateColumns="False" CssClass="table" 
+    OnRowDeleting="GridView1_RowDeleting" 
+    OnRowEditing="GridView1_RowEditing" 
+    OnRowUpdating="GridView1_RowUpdating" 
+    DataKeyNames="DVT_id" OnRowDataBound="GridView1_RowDataBound">
+    <Columns>
+        <asp:BoundField DataField="DVT_id" HeaderText="STT" SortExpression="DVT_id" />
+        <asp:BoundField DataField="DVT_name" HeaderText="Tên đơn vị tính" SortExpression="DVT_name" />
+        <asp:BoundField DataField="Description" HeaderText="Mô tả" SortExpression="Description" />
+        <asp:BoundField DataField="status" HeaderText="Trạng thái" SortExpression="status" />
+
+        <asp:TemplateField HeaderText="Thao tác">
+            <ItemTemplate>
+                <asp:Button ID="btnEdit" runat="server" Text="Cập nhật" CssClass="edit" CommandName="Edit" 
+                    CommandArgument='<%# Eval("DVT_id") %>' />
+                <asp:Button ID="btnDelete" runat="server" Text="Xóa" CssClass="delete" CommandName="Delete" 
+                    CommandArgument='<%# Eval("DVT_id") %>' OnClientClick="return confirm('Bạn có chắc chắn muốn xóa nhóm thực đơn này không?');" />
+            </ItemTemplate>
+            <EditItemTemplate>
+                <asp:TextBox ID="txtEditFoodCategoryName" runat="server" Text='<%# Eval("DVT_name") %>' />
+                <asp:TextBox ID="txtEditDescription" runat="server" Text='<%# Eval("Description") %>' />
+                <asp:DropDownList ID="ddlEditStatus" runat="server">
+                    <asp:ListItem Text="Hoạt động" Value="1" />
+                    <asp:ListItem Text="Ngừng hoạt động" Value="0" />
+                </asp:DropDownList>
+                <asp:Button ID="btnUpdate" runat="server" Text="Lưu thay đổi" CommandName="Update" CssClass="update" />
+                <asp:Button ID="btnCancel" runat="server" Text="Hủy" CommandName="Cancel" CssClass="cancel" />
+            </EditItemTemplate>
+        </asp:TemplateField>
+    </Columns>
+</asp:GridView>
+
         </div>
     </div>
     </form>

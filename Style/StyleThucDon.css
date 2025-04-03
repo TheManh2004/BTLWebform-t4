@@ -193,8 +193,7 @@
 table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 30px;
-}
+    }
 
 table, th, td {
     border: 1px solid #6F4E37;
@@ -215,13 +214,8 @@ td {
     color: #6F4E37;
 }
 
-.actions {
-    /*            display: flex;
-            justify-content: center;
-            gap: 10px;*/
-}
 
-    .actions .edit {
+    .btnedit {
         background-color: #4CAF50;
         color: white;
         padding: 6px 12px;
@@ -230,7 +224,7 @@ td {
         cursor: pointer;
     }
 
-    .actions .delete {
+    .btndelete {
         background-color: #F2BB42;
         color: white;
         padding: 6px 12px;
@@ -239,11 +233,11 @@ td {
         cursor: pointer;
     }
 
-        .actions .delete:hover {
+         .btndelete:hover {
             opacity: 0.8;
         }
 
-    .actions .edit:hover {
+     .btnedit:hover {
         opacity: 0.8;
     }
 

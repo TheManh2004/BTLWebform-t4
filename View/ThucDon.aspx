@@ -1,9 +1,8 @@
 ﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="ThucDon.aspx.cs" Inherits="BTL.View.ThucDon" %>
 
 <!DOCTYPE html>
-
-    <html xmlns="http://www.w3.org/1999/xhtml">
-    <head runat="server">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head runat="server">
     <title>Nhóm thực đơn</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
@@ -25,7 +24,7 @@
             <a href="ThucDon.aspx">Nhóm thực đơn</a>
             <a href="DonViTinh.aspx">Đơn vị tính</a>
         </div>
-                <a href="DoanhThu.aspx">Thống kê doanh thu</a>
+        <a href="DoanhThu.aspx">Thống kê doanh thu</a>
         <a href="DonHang.aspx">Quản lý đơn hàng</a>
         <a href="qlNV.aspx">Quản lý nhân viên</a>
         <a href="NguyenLieu.aspx">Quản Lý nguyên liệu</a>
@@ -63,45 +62,46 @@
                 <asp:TextBox ID="txtSearch" class="txtSearch" runat="server" placeholder="Tìm kiếm theo tên nhóm..." />
                 <asp:Button ID="btnSearch" class="btnSearch" runat="server" Text="Tìm kiếm" OnClick="btnSearch_Click" />
             </div>
-            <table>
-                <thead>
-                    <tr>
-                        <th>STT</th>
-                        <th>Tên nhóm</th>
-                        <th>Trạng thái</th>
-                        <th>Ghi chú</th>
-                        <th>Thao tác</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>1</td>
-                        <td>Đồ ăn sáng</td>
-                        <td>Hoạt động</td>
-                        <td></td>
-                        <td class="actions">
-                            <asp:Button ID="btnEdit1" runat="server" Text="Cập nhật" CssClass="edit" OnClick="btnEdit_Click" />
-                            <asp:Button ID="btnDelete1" runat="server" Text="Xóa" CssClass="delete" OnClick="btnDelete_Click" />
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>2</td>
-                        <td>Đồ uống</td>
-                        <td>Ngừng hoạt động</td>
-                        <td></td>
-                        <td class="actions">
-                            <asp:Button ID="btnEdit2" runat="server" Text="Cập nhật" CssClass="edit" OnClick="btnEdit_Click" />
-                            <asp:Button ID="btnDelete2" runat="server" Text="Xóa" CssClass="delete" OnClick="btnDelete_Click" />
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+           <asp:GridView ID="GridView1" runat="server" 
+               AutoGenerateColumns="False" CssClass="table" 
+               OnRowDeleting="GridView1_RowDeleting" 
+               OnRowEditing="GridView1_RowEditing" 
+               OnRowUpdating="GridView1_RowUpdating" 
+               DataKeyNames="FoodCategory_id" 
+               OnRowDataBound="GridView1_RowDataBound">
+    <Columns>
+        <asp:BoundField DataField="FoodCategory_id" HeaderText="STT" SortExpression="FoodCategory_id" />
+        <asp:BoundField DataField="FoodCategory_name" HeaderText="Tên nhóm" SortExpression="FoodCategory_name" />
+        <asp:BoundField DataField="Description" HeaderText="Mô tả" SortExpression="Description" />
+        <asp:BoundField DataField="status" HeaderText="Trạng thái" SortExpression="status" />
+        <asp:TemplateField HeaderText="Thao tác">
+            <ItemTemplate>
+                <!-- Nút Cập nhật -->
+                <asp:Button ID="btnEdit" runat="server" Text="Cập nhật" CssClass="btnedit" CommandName="Edit" 
+                    CommandArgument='<%# Eval("FoodCategory_id") %>' />
+                <!-- Nút Xóa -->
+                <asp:Button ID="btnDelete" runat="server" Text="Xóa" CssClass="btndelete" CommandName="Delete" 
+                    CommandArgument='<%# Eval("FoodCategory_id") %>' OnClientClick="return confirm('Bạn có chắc chắn muốn xóa nhóm thực đơn này không?');" />
+            </ItemTemplate>
+            <EditItemTemplate>
+                <!-- Các ô chỉnh sửa trong chế độ Edit -->
+                <asp:TextBox ID="txtEditFoodCategoryName" runat="server" Text='<%# Eval("FoodCategory_name") %>' />
+                <asp:TextBox ID="txtEditDescription" runat="server" Text='<%# Eval("Description") %>' />
+                <!-- DropdownList trạng thái cho chế độ chỉnh sửa -->
+                <asp:DropDownList ID="ddlEditStatus" runat="server">
+                    <asp:ListItem Text="Hoạt động" Value="1" />
+                    <asp:ListItem Text="Ngừng hoạt động" Value="0" />
+                </asp:DropDownList>
+                <!-- Nút Lưu thay đổi -->
+                <asp:Button ID="btnUpdate" runat="server" Text="Lưu thay đổi" CommandName="Update" CssClass="update" />
+                <!-- Nút Hủy -->
+                <asp:Button ID="btnCancel" runat="server" Text="Hủy" CommandName="Cancel" CssClass="cancel" />
+            </EditItemTemplate>
+        </asp:TemplateField>
+    </Columns>
+</asp:GridView>
         </div>
     </div>
     </form>
-    <script src="../Scripts/ScriptsCode/ThucDonJS.js">
-       
-    </script>
-
 </body>
 </html>

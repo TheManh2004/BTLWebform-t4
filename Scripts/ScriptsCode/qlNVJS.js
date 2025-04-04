@@ -36,3 +36,15 @@ function hideModal() {
     document.getElementById("addEmployeeModal").style.display = "none";
     document.body.classList.remove("modal-open");
 }
+
+function showeditModal() {
+    document.getElementById("editEmployeeModal").style.display = "block";
+    document.body.classList.add("modal-open");
+}
+
+function hideeditModal() {
+    document.getElementById("editEmployeeModal").style.display = "none";
+    document.body.classList.remove("modal-open");
+}
+
+

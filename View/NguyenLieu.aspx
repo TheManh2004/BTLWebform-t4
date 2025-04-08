@@ -66,21 +66,42 @@
                 </div>
 
                 <!-- GridView for Inventory -->
-                <asp:GridView ID="gvInventory" runat="server" AutoGenerateColumns="False" CssClass="gridview" OnSelectedIndexChanged="gvInventory_SelectedIndexChanged">
-                    <Columns>
-                        <asp:BoundField DataField="STT" HeaderText="STT" />
-                        <asp:BoundField DataField="MaSanPham" HeaderText="Mã sản phẩm" />
-                        <asp:BoundField DataField="TenSanPham" HeaderText="Tên sản phẩm" />
-                        <asp:BoundField DataField="SoLuong" HeaderText="Số lượng" />
-                        <asp:BoundField DataField="DinhLuong" HeaderText="Định lượng" />
-                        <asp:TemplateField HeaderText="Thao tác">
-                            <ItemTemplate>
-                                <asp:Button ID="btnUpdate" runat="server" Text="Cập nhật" CssClass="btn-update" OnClick="btnUpdate_Click" />
-                                <asp:Button ID="btnDelete" runat="server" Text="Xóa" CssClass="btn-delete" OnClick="btnDelete_Click" />
-                            </ItemTemplate>
-                        </asp:TemplateField>
-                    </Columns>
-                </asp:GridView>
+                <asp:GridView ID="gvInventory" runat="server" AutoGenerateColumns="False" CssClass="gridview"
+                DataKeyNames="Ingredient_id" OnRowEditing="gvInventory_RowEditing"
+                OnRowUpdating="gvInventory_RowUpdating" OnRowCancelingEdit="gvInventory_RowCancelingEdit"
+                OnRowDeleting="gvInventory_RowDeleting">
+                <Columns>
+                    <asp:BoundField DataField="Ingredient_id" HeaderText="Mã sản phẩm" ReadOnly="True" />
+                    <asp:TemplateField HeaderText="Tên sản phẩm">
+                        <ItemTemplate>
+                            <%# Eval("Ingredient_name") %>
+                        </ItemTemplate>
+                        <EditItemTemplate>
+                            <asp:TextBox ID="txtEditTenSanPham" runat="server" Text='<%# Bind("Ingredient_name") %>' />
+                        </EditItemTemplate>
+                    </asp:TemplateField>
+                    <asp:TemplateField HeaderText="Số lượng">
+                        <ItemTemplate>
+                            <%# Eval("Quantity") %>
+                        </ItemTemplate>
+                        <EditItemTemplate>
+                            <asp:TextBox ID="txtEditSoLuong" runat="server" Text='<%# Bind("Quantity") %>' />
+                        </EditItemTemplate>
+                    </asp:TemplateField>
+                    <asp:TemplateField HeaderText="Định lượng">
+                        <ItemTemplate>
+                            <%# Eval("Unit") %>
+                        </ItemTemplate>
+                        <EditItemTemplate>
+                            <asp:TextBox ID="txtEditDinhLuong" runat="server" Text='<%# Bind("Unit") %>' />
+                        </EditItemTemplate>
+                    </asp:TemplateField>
+                    <asp:CommandField ShowEditButton="True" />
+                    <asp:CommandField ShowDeleteButton="True" />
+                </Columns>
+            </asp:GridView>
+
+
             </div>
         </div>
     </form>

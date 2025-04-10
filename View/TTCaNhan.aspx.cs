@@ -86,20 +86,24 @@ namespace BTL.View
 
         protected void btnSavePassword_Click(object sender, EventArgs e)
         {
-            string currentPassword = txtCurrentPassword.Text;
-            string newPassword = txtNewPassword.Text;
-            string confirmPassword = txtConfirmPassword.Text;
+            string username = Session["UserName"]?.ToString();
+            if (string.IsNullOrEmpty(username)) return;
 
-            // Kiểm tra dữ liệu
+            string currentPassword = txtCurrentPassword.Text.Trim();
+            string newPassword = txtNewPassword.Text.Trim();
+            string confirmPassword = txtConfirmPassword.Text.Trim();
+
             if (string.IsNullOrEmpty(currentPassword) || string.IsNullOrEmpty(newPassword) || string.IsNullOrEmpty(confirmPassword))
             {
-                ScriptManager.RegisterStartupScript(this, GetType(), "alert", "alert('Vui lòng điền đầy đủ các trường!');", true);
+                ScriptManager.RegisterStartupScript(this, GetType(), "alert",
+                    "alert('❗ Vui lòng điền đầy đủ thông tin!'); showModal();", true);
                 return;
             }
 
             if (newPassword != confirmPassword)
             {
-                ScriptManager.RegisterStartupScript(this, GetType(), "alert", "alert('Mật khẩu mới và xác nhận mật khẩu không khớp!');", true);
+                ScriptManager.RegisterStartupScript(this, GetType(), "alert",
+                    "alert('❗ Mật khẩu mới và xác nhận không khớp!'); showModal();", true);
                 return;
             }
 
@@ -132,9 +136,9 @@ namespace BTL.View
             // Kiểm tra mật khẩu hiện tại
             if (currentPassword != storedPassword)
             {
-                ScriptManager.RegisterStartupScript(this, GetType(), "alert", "alert('Mật khẩu hiện tại không đúng!');", true);
-                return;
-            }
+                string checkQuery = "SELECT PassWord FROM Account WHERE UserName = @username";
+                SqlCommand checkCmd = new SqlCommand(checkQuery, conn);
+                checkCmd.Parameters.AddWithValue("@username", username);
 
             // Mã hóa mật khẩu mới trước khi lưu vào cơ sở dữ liệu
             // Bạn có thể sử dụng các kỹ thuật mã hóa như SHA256 hoặc bcrypt ở đây
@@ -159,25 +163,34 @@ namespace BTL.View
                 }
             }
 
-            // Xóa dữ liệu trong modal
+                if (storedPassword != currentPassword)
+                {
+                    ScriptManager.RegisterStartupScript(this, GetType(), "alert",
+                        "alert('❗ Mật khẩu hiện tại không đúng!'); showModal();", true);
+                    return;
+                }
+
+                string updateQuery = "UPDATE Account SET PassWord = @newPassword WHERE UserName = @username";
+                SqlCommand updateCmd = new SqlCommand(updateQuery, conn);
+                updateCmd.Parameters.AddWithValue("@newPassword", newPassword);
+                updateCmd.Parameters.AddWithValue("@username", username);
+                updateCmd.ExecuteNonQuery();
+            }
+
+            // Reset input
             txtCurrentPassword.Text = "";
             txtNewPassword.Text = "";
             txtConfirmPassword.Text = "";
 
-            // Ẩn modal
-            ScriptManager.RegisterStartupScript(this, GetType(), "hideModal", "hideModal();", true);
+            ScriptManager.RegisterStartupScript(this, GetType(), "alert",
+                "alert('✅ Đặt lại mật khẩu thành công!'); hideModal();", true);
         }
 
         protected void BtnLogout_Click(object sender, EventArgs e)
         {
-            // Xóa toàn bộ session
             Session.Clear();
             Session.Abandon();
-
-            // Nếu sử dụng FormsAuthentication
             System.Web.Security.FormsAuthentication.SignOut();
-
-            // Chuyển hướng về trang đăng nhập
             Response.Redirect("homepage.aspx");
         }
     }

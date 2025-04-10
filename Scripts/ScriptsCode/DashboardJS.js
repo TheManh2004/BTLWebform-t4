@@ -1,402 +1,435 @@
-﻿function formatCurrency(amount) {
-    return amount.toLocaleString('vi-VN', { maximumFractionDigits: 0 }) + " đ";
-}
+﻿document.addEventListener("DOMContentLoaded", function () {
+    console.log("🚀 DashboardJS initialized!");
 
-function selectTable(tableId, tableName, floor, status, customerCount) {
-    var tables = document.getElementsByClassName("table-item");
-    for (var i = 0; i < tables.length; i++) {
-        tables[i].classList.remove("selected");
-    }
-    var selectedTable = document.getElementById("tableItem_" + tableId);
-    selectedTable.classList.add("selected");
-    document.getElementById("hdnSelectedTable").value = tableId;
-    document.getElementById("txtTablePosition").value = "Bàn " + tableName + " - " + (floor === "floor1" ? "Tầng 1" : "Tầng 2");
-    document.getElementById("txtCustomerCount").value = customerCount || 0;
-    switchTab('menu'); // Chuyển sang tab "Thực đơn" khi chọn bàn
-    updateCartDisplay(); // Cập nhật giỏ hàng ngay khi chọn bàn
-}
-
-function switchTab(tab) {
-    // Cập nhật giá trị hidden field
-    document.getElementById("hdnActiveTab").value = tab;
-
-    // Lấy các phần tử tab
-    var tableTab = document.getElementById("tableTab");
-    var menuTab = document.getElementById("menuTab");
-
-    // Lấy các phần tử nội dung
-    var menuContainer = document.getElementById("menuContainer");
-    var floorBtnContainer = document.getElementById("floorBtnContainer");
-    var tableItems = document.getElementById("tableItems");
-    var productItems = document.getElementById("productItems");
-    var categoryMenu = document.getElementById("categoryMenu");
-
-    // Xóa lớp active khỏi cả hai tab
-    tableTab.classList.remove("active");
-    menuTab.classList.remove("active");
-
-    // Hiển thị nội dung và thêm lớp active dựa trên tab
-    if (tab === "menu") {
-        menuContainer.style.display = "flex";
-        floorBtnContainer.style.display = "none";
-        tableItems.style.display = "none";
-        productItems.style.display = "grid";
-        categoryMenu.style.display = "flex";
-        menuTab.classList.add("active"); // Thêm active cho Thực đơn
-        setActiveCategory(document.getElementById("hdnActiveCategory").value);
-    } else if (tab === "table") {
-        menuContainer.style.display = "none";
-        floorBtnContainer.style.display = "flex";
-        tableItems.style.display = "grid";
-        productItems.style.display = "none";
-        categoryMenu.style.display = "none";
-        tableTab.classList.add("active"); // Thêm active cho Phòng bàn
-        loadTables('new');
+    function syncStorage(key, data) {
+        const jsonData = JSON.stringify(data);
+        localStorage.setItem(key, jsonData);
+        sessionStorage.setItem(key, jsonData);
     }
 
-    updateCartDisplay(); // Cập nhật giỏ hàng
-}
+    function switchTab(tabName) {
+        document.getElementById("hdnActiveTab").value = tabName;
+        document.getElementById("floorBtnContainer").style.display = (tabName === "table") ? "block" : "none";
+        document.getElementById("tableItems").style.display = (tabName === "table") ? "flex" : "none";
+        document.getElementById("menuContainer").style.display = (tabName === "menu") ? "flex" : "none";
+        document.getElementById("tableTab").classList.toggle("active", tabName === "table");
+        document.getElementById("menuTab").classList.toggle("active", tabName === "menu");
+    }
+    switchTab("table");
 
-function setActiveCategory(category) {
-    document.getElementById("hdnActiveCategory").value = category;
-    switchTab('menu');
+    function safeParse(jsonString) {
+        try { return JSON.parse(jsonString); } catch (e) { console.error("❌ JSON Error:", e); return null; }
+    }
 
-    document.getElementById("btnAll").classList.toggle("active", category === "all");
-    document.getElementById("btnCoffee").classList.toggle("active", category === "coffee");
-    document.getElementById("btnTea").classList.toggle("active", category === "tea");
+    function checkStorageLimit(storageType) {
+        let total = Object.keys(storageType).reduce((acc, key) => acc + (storageType.getItem(key) || "").length, 0);
+        console.log(`📦 ${storageType === localStorage ? "localStorage" : "sessionStorage"}: ${(total / 1024).toFixed(2)} KB`);
+    }
 
-    $.ajax({
-        type: "POST",
-        url: "Dashboard.aspx/GetProductsByCategory",
-        contentType: "application/json; charset=utf-8",
-        data: JSON.stringify({ category: category }),
-        dataType: "json",
-        success: function (response) {
-            var products = JSON.parse(response.d);
-            var productItems = document.getElementById("productItems");
-            productItems.innerHTML = products.map(p => `
-                        <div class="product-item" onclick="addToCart('${p.Name}', ${p.Price})">
-                            <img src="${p.ImageUrl}" alt="Product" />
-                            <div class="name">${p.Name}</div>
-                            <div class="price">${formatCurrency(p.Price)}</div>
-                        </div>
-                    `).join('');
-        },
-        error: function (xhr, status, error) {
-            console.error("Lỗi khi tải sản phẩm:", xhr.responseText);
+    function updateHiddenCartData() {
+        let hiddenInput = document.getElementById("hdnCartData");
+        if (hiddenInput) {
+            hiddenInput.value = sessionStorage.getItem("cartData") || "[]";
+            console.log("✅ Cập nhật hdnCartData:", hiddenInput.value);
         }
-    });
-}
-
-function loadTables(filter) {
-    document.getElementById("hdnActiveTab").value = "table";
-    switchTab('table');
-
-    $.ajax({
-        type: "POST",
-        url: "Dashboard.aspx/GetTablesByFilter",
-        contentType: "application/json; charset=utf-8",
-        data: JSON.stringify({ filter: filter }),
-        dataType: "json",
-        success: function (response) {
-            var tables = JSON.parse(response.d);
-            var tableItems = document.getElementById("tableItems");
-            tableItems.innerHTML = tables.map(t => `
-                        <div class="table-item" id="tableItem_${t.TableId}" onclick="selectTable('${t.TableId}', '${t.TableName}', '${t.Floor}', '${t.Status}', '${t.CustomerCount || 0}')">
-                            <span class="table-title">MAT-C COFFE</span>
-                            <span class="table-name">Bàn ${t.TableName}</span>
-                            ${t.Status ? `<span class="table-status">${t.Status} phút</span>` : ''}
-                            <div class="table-icon">${t.CustomerCount > 0 ? t.CustomerCount : ''}</div>
-                        </div>
-                    `).join('');
-            document.getElementById("lblEmpty").style.display = tables.length ? "none" : "block";
-        },
-        error: function (xhr, status, error) {
-            console.error("Lỗi khi tải bàn:", xhr.responseText);
-        }
-    });
-}
-
-function addToCart(productName, price) {
-    var selectedTableId = document.getElementById("hdnSelectedTable").value;
-    if (!selectedTableId) {
-        alert("Vui lòng chọn bàn trước!");
-        return;
     }
-    var cart = JSON.parse(sessionStorage.getItem('cart_' + selectedTableId) || '[]');
-    var existingItem = cart.find(item => item.ProductName === productName);
-    if (existingItem) {
-        existingItem.Quantity += 1;
-    } else {
-        cart.push({ ProductName: productName, Price: price, Quantity: 1 });
-    }
-    sessionStorage.setItem('cart_' + selectedTableId, JSON.stringify(cart));
-    updateCartDisplay();
-    syncCartWithServer(); // Đồng bộ giỏ hàng với server
-}
-
-function updateCartDisplay() {
-    var selectedTableId = document.getElementById("hdnSelectedTable").value;
-    if (selectedTableId) {
-        var cart = JSON.parse(sessionStorage.getItem('cart_' + selectedTableId) || '[]');
-        var cartItemsHtml = '';
-        cart.forEach((item, index) => {
-            var itemTotal = item.Price * item.Quantity;
-            cartItemsHtml += `
-                        <div class='cart-item'>
-                            <span class='index'>${index + 1}</span>
-                            <div class='name-container'>
-                                <span class='name'>${item.ProductName}${item.Note ? ' (' + item.Note + ')' : ''}</span>
-                                <i class='fas fa-sticky-note note-icon' onclick='addNote(${index})'></i>
-                            </div>
-                            <span class='quantity'>${item.Quantity}</span>
-                            <span class='total-price'>${formatCurrency(itemTotal)}</span>
-                            <span class='unit-price'>${formatCurrency(item.Price)}</span>
-                            <i class='fas fa-trash delete-icon' onclick='deleteCartItem(${index})'></i>
-                        </div>`;
+    // Hàm lọc bàn theo tầng
+    function filterTables(floorId) {
+        document.querySelectorAll(".table-item").forEach(table => {
+            table.style.display = (table.getAttribute("data-floor") === floorId) ? "flex" : "none";
         });
-        document.getElementById('cartItems').innerHTML = cartItemsHtml;
-        document.getElementById('emptyCartMessage').style.display = cart.length ? 'none' : 'block';
-        document.getElementById('cartItemCount').innerText = cart.length;
-        var subtotal = cart.reduce((sum, item) => sum + (item.Price * item.Quantity), 0);
-        var tax = subtotal * 0.1; // Thuế mặc định 10%
-        var total = subtotal + tax;
-        document.getElementById('txtSubtotal').value = formatCurrency(subtotal);
-        document.getElementById('txtTax').value = formatCurrency(tax);
-        document.getElementById('txtTotal').value = formatCurrency(total);
-    } else {
-        document.getElementById('cartItems').innerHTML = '';
-        document.getElementById('emptyCartMessage').style.display = 'block';
-        document.getElementById('cartItemCount').innerText = '0';
-        document.getElementById('txtSubtotal').value = formatCurrency(0);
-        document.getElementById('txtTax').value = formatCurrency(0);
-        document.getElementById('txtTotal').value = formatCurrency(0);
+        console.log(`📌 Hiển thị bàn thuộc tầng: ${floorId}`);
     }
-}
 
-function syncCartWithServer() {
-    var selectedTableId = document.getElementById("hdnSelectedTable").value;
-    if (!selectedTableId) return;
-    var cart = JSON.parse(sessionStorage.getItem('cart_' + selectedTableId) || '[]');
-    $.ajax({
-        type: "POST",
-        url: "Dashboard.aspx/SyncCart",
-        contentType: "application/json; charset=utf-8",
-        data: JSON.stringify({ tableId: selectedTableId, cart: cart }),
-        dataType: "json",
-        success: function (response) {
-            console.log("Giỏ hàng đã được đồng bộ với server");
-        },
-        error: function (xhr, status, error) {
-            console.error("Lỗi khi đồng bộ giỏ hàng:", xhr.responseText);
+    // Gán sự kiện click cho nút tầng
+    document.querySelectorAll(".floor-btn").forEach(button => {
+        button.addEventListener("click", function () {
+            let floorId = this.getAttribute("data-floor");
+            filterTables(floorId);
+        });
+    });
+    // Hiển thị tầng mặc định (nếu cần)
+    let defaultFloor = document.querySelector(".floor-btn")?.getAttribute("data-floor") || "1";
+    filterTables(defaultFloor);
+    // Hàm lọc món theo danh mục
+    function filterProducts(categoryId) {
+        document.querySelectorAll(".product-item").forEach(product => {
+            if (categoryId === "all") {
+                product.style.display = "block"; // Hiển thị tất cả món
+            } else {
+                product.style.display = (product.getAttribute("data-category") === categoryId) ? "block" : "none";
+            }
+        });
+        console.log(`📌 Hiển thị món thuộc danh mục: ${categoryId}`);
+    }
+
+    // Gán sự kiện click cho nút danh mục
+    document.querySelectorAll(".category-btn").forEach(button => {
+        button.addEventListener("click", function () {
+            let categoryId = this.getAttribute("data-category");
+            filterProducts(categoryId);
+        });
+    });
+
+    // Hiển thị tất cả món mặc định
+    filterProducts("all");
+
+    function loadSavedOrder() {
+        let selectedTable = safeParse(sessionStorage.getItem("selectedTable"));
+        if (!selectedTable) return;
+        sessionStorage.setItem("cartData", localStorage.getItem(`order_${selectedTable.id}`) || "[]");
+        updateHiddenCartData();
+        updateCartUI();
+    }
+
+    document.querySelectorAll(".table-item").forEach(table => {
+        table.addEventListener("click", function () {
+            let tableId = this.id.split("_")[1];
+            let tableName = this.querySelector(".table-name").textContent;
+            let floorId = this.getAttribute("data-floor");
+
+            sessionStorage.clear();
+            syncStorage("selectedTable", { id: tableId, name: tableName, floor: floorId });
+
+            document.getElementById("txtTablePosition").value = `${tableName} - Tầng ${floorId}`;
+            document.getElementById("currentTable").value = `${tableName} - Tầng ${floorId}`;
+            document.getElementById("lblfloor").innerText = `${tableName} - Tầng ${floorId}`;
+            document.getElementById("hdnSelectedTable").value = tableId;
+            loadSavedOrder();
+            switchTab("menu");
+        });
+    });
+
+    // Thêm sản phẩm vào giỏ hàng
+    document.querySelectorAll(".product-item").forEach(item => {
+        item.addEventListener("click", function () {
+            let foodId = this.getAttribute("data-id");
+            let name = this.querySelector(".name")?.textContent.trim();
+            let price = parseFloat(this.querySelector(".price")?.textContent.replace(" đ", "").replace(",", ""));
+            if (!name || isNaN(price)) return console.error("❌ Dữ liệu sản phẩm không hợp lệ!");
+
+            let cart = safeParse(sessionStorage.getItem("cartData")) || [];
+            let itemIndex = cart.findIndex(i => i.Food_id == foodId);
+            itemIndex > -1 ? cart[itemIndex].quantity++ : cart.push({ Food_id: foodId, name, price, quantity: 1 });
+
+            sessionStorage.setItem("cartData", JSON.stringify(cart));
+            updateHiddenCartData();
+            updateCartUI();
+        });
+    });
+
+    // Cập nhật UI giỏ hàng
+    function updateCartUI() {
+        let cart = safeParse(sessionStorage.getItem("cartData")) || [];
+
+        // Lưu hóa đơn vào localStorage
+        let selectedTable = safeParse(sessionStorage.getItem("selectedTable"));
+        if (selectedTable) {
+            localStorage.setItem(`order_${selectedTable.id}`, JSON.stringify(cart));
+        }
+
+        let cartItemsContainer = document.getElementById("cartItems");
+        cartItemsContainer.innerHTML = "";
+        let subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+        cart.forEach((item, index) => {
+            let div = document.createElement("div");
+            div.classList.add("cart-item");
+            div.innerHTML = `<span>${item.name} x${item.quantity} - ${item.price * item.quantity} đ</span>
+                             <button class="remove-item" data-index="${index}">❌</button>`;
+            cartItemsContainer.appendChild(div);
+        });
+
+        document.getElementById("cartItemCount").textContent = cart.length;
+        document.getElementById("txtSubtotal").value = `${subtotal} đ`;
+        document.getElementById("txtTotal").value = `${subtotal} đ`;
+        document.getElementById("txtTempTotal").value = `${subtotal} đ`;
+    }
+    function updatePaymentTotals() {
+        // 1. Lấy tổng tạm tính
+        let tempTotalStr = document.getElementById("txtTempTotal").value.replace(/[^\d]/g, '');
+        let tempTotal = parseFloat(tempTotalStr) || 0;
+
+        // 2. Lấy % giảm giá và số tiền giảm giá
+        let discountPercent = parseFloat(document.getElementById("txtDiscountPercent").value) || 0;
+        let discountAmountInput = document.getElementById("txtDiscountAmount").value.replace(/[^\d]/g, '');
+        let discountAmount = parseFloat(discountAmountInput) || (tempTotal * discountPercent / 100);
+
+        // Nếu người dùng chỉnh % → tính lại số tiền
+        if (document.activeElement.id === "txtDiscountPercent") {
+            discountAmount = tempTotal * discountPercent / 100;
+            document.getElementById("txtDiscountAmount").value = `${discountAmount.toLocaleString()} đ`;
+        }
+
+        // Nếu người dùng chỉnh tiền giảm → tính lại %
+        if (document.activeElement.id === "txtDiscountAmount") {
+            discountPercent = (discountAmount / tempTotal) * 100;
+            document.getElementById("txtDiscountPercent").value = discountPercent.toFixed(1);
+        }
+
+        // 3. Tính tổng sau giảm giá
+        let afterDiscount = tempTotal - discountAmount;
+
+        // 4. Tính thuế
+        let taxPercent = parseFloat(document.getElementById("txtTaxPercent").value) || 0;
+        let taxAmount = afterDiscount * taxPercent / 100;
+        document.getElementById("txtTaxAmount").value = `${taxAmount.toLocaleString()} đ`;
+
+        // 5. Tổng cuối cùng
+        let finalTotal = afterDiscount + taxAmount;
+        document.getElementById("txtFinalTotal").value = `${finalTotal.toLocaleString()} đ`;
+        document.getElementById("txtCustomerPay").value = `${finalTotal.toLocaleString()} đ`;
+  
+    }
+    // Xóa hoặc giảm số lượng sản phẩm
+    document.getElementById("cartItems").addEventListener("click", function (event) {
+        if (event.target.classList.contains("remove-item")) {
+            let cart = safeParse(sessionStorage.getItem("cartData")) || [];
+            let index = event.target.getAttribute("data-index");
+            if (cart[index].quantity > 1) {
+                cart[index].quantity -= 1; // Giảm số lượng đi 1
+            } else {
+                cart.splice(index, 1); // Nếu số lượng = 1 thì xóa luôn
+            }
+            sessionStorage.setItem("cartData", JSON.stringify(cart));
+            updateCartUI();
         }
     });
-}
+    function getFloorIdFromTable(tableId) {
+        let tableOption = document.querySelector(`#tableItem_${tableId}`);
+        return tableOption ? tableOption.getAttribute("data-floor") : "Không xác định";
+    }
+    document.getElementById("btnConfirmTransfer").addEventListener("click", function (event) {
+        event.preventDefault(); // Chặn hành vi mặc định (nếu có)
+        updateTargetTable();
 
-function loadCartFromServer() {
-    var selectedTableId = document.getElementById("hdnSelectedTable").value;
-    if (!selectedTableId) return;
-    $.ajax({
-        type: "POST",
-        url: "Dashboard.aspx/GetCart",
-        contentType: "application/json; charset=utf-8",
-        data: JSON.stringify({ tableId: selectedTableId }),
-        dataType: "json",
-        success: function (response) {
-            var cart = JSON.parse(response.d);
-            sessionStorage.setItem('cart_' + selectedTableId, JSON.stringify(cart));
-            updateCartDisplay();
-        },
-        error: function (xhr, status, error) {
-            console.error("Lỗi khi tải giỏ hàng:", xhr.responseText);
+        let targetTableId = document.getElementById("hdnTargetTable").value;
+        if (!targetTableId) {
+            alert("⚠️ Chưa chọn bàn cần chuyển đến!");
+            return;
+        }
+
+        let targetTableName = document.getElementById("targetTable").selectedOptions[0]?.text || "";
+
+        // Kiểm tra hàm getFloorIdFromTable có tồn tại không trước khi gọi
+        let floorId = (typeof getFloorIdFromTable === "function") ? getFloorIdFromTable(targetTableId) : "Không xác định";
+
+        sessionStorage.setItem("targetTable", JSON.stringify({
+            id: targetTableId,
+            name: targetTableName,
+            floor: floorId
+        }));
+
+        console.log(`✅ Đã lưu vào sessionStorage: Bàn ${targetTableId} (${targetTableName}), Tầng: ${floorId}`);
+        alert(`✅ Xác nhận chuyển bàn thành công!`);
+    });
+
+
+    function updateTargetTable() {         
+        let targetTable = document.getElementById("targetTable");
+        let targetTableId = targetTable.value;
+
+        if (!targetTableId) {
+            alert("⚠️ Vui lòng chọn bàn cần chuyển đến!");
+            return;
+        }
+
+        document.getElementById("hdnTargetTable").value = targetTableId;
+        console.log("✅ Đã cập nhật hdnTargetTable với ID bàn:", targetTableId);
+    }
+    document.getElementById("btnUpdateTable").addEventListener("click", function () {
+        let currentTableId = document.getElementById("hdnSelectedTable").value;
+        let targetTableId = document.getElementById("targetTable").value;
+        let targetTableName = document.getElementById("targetTable").selectedOptions[0].text;
+        let floorId = getFloorIdFromTable(targetTableId);
+
+        console.log("🚀 Chuyển từ bàn:", currentTableId, "➡️", targetTableId);
+
+        updateTargetTable(); // Cập nhật input ẩn `hdnTargetTable` với ID bàn mới
+
+        // Kiểm tra bàn cần chuyển có hợp lệ không
+        if (!targetTableId) {
+            alert("⚠️ Vui lòng chọn bàn cần chuyển đến!");
+            return;
+        }
+
+        // 🟢 Lấy dữ liệu hóa đơn từ bàn hiện tại
+        let cartData = safeParse(localStorage.getItem(`order_${currentTableId}`)) || [];
+
+        // 🛑 Kiểm tra dữ liệu có hợp lệ không trước khi tiếp tục
+        if (cartData.length === 0) {
+            alert("⚠️ Không có đơn hàng để chuyển!");
+            return;
+        }
+
+        console.log("📦 Dữ liệu đơn hàng cần chuyển:", cartData);
+
+        // 🛠️ Lưu giỏ hàng vào bàn mới trước khi xóa bàn cũ
+        localStorage.setItem(`order_${targetTableId}`, JSON.stringify(cartData));
+
+        // 🔄 Kiểm tra lại xem dữ liệu đã lưu chưa
+        let newCartData = safeParse(localStorage.getItem(`order_${targetTableId}`));
+        if (newCartData.length === 0) {
+            alert("⚠️ Lỗi khi lưu dữ liệu giỏ hàng vào bàn mới!");
+            return;
+        }
+
+        console.log("✅ Đã cập nhật giỏ hàng vào bàn mới:", newCartData);
+
+        // 🗑 Xóa đơn hàng của bàn cũ
+        localStorage.removeItem(`order_${currentTableId}`);
+
+        // Gọi sự kiện C# để cập nhật trên server
+        setTimeout(() => {
+            document.getElementById("btnUpdateTable").click();
+        }, 100); // Delay nhẹ để C# xử lý trước
+
+        // 🟢 Sau khi C# cập nhật xong, mới cập nhật JavaScript
+        setTimeout(() => {
+            document.getElementById("hdnSelectedTable").value = targetTableId; // Cập nhật bàn mới
+
+            syncStorage("selectedTable", { id: targetTableId, name: targetTableName, floor: floorId });
+
+            updateCartUI(); // Cập nhật UI giỏ hàng ngay lập tức
+
+            alert(`✅ Chuyển bàn thành công! ${currentTableId} ➝ ${targetTableId}`);
+            document.getElementById("transferTableModal").style.display = "none"; // Đóng modal
+        }, 500);
+    });
+   
+    document.getElementById("btnSaveBill").addEventListener("click", function () {
+        let cart = safeParse(sessionStorage.getItem("cartData")) || [];
+        let selectedTable = safeParse(sessionStorage.getItem("selectedTable"));
+
+        if (!selectedTable?.id || cart.length === 0) return alert("⚠️ Chọn bàn và thêm món trước khi lưu!");
+
+        console.log("📦 Gửi dữ liệu:", cart, "📌 Bàn:", selectedTable);
+
+        document.getElementById("hdnCartData").value = JSON.stringify(cart);
+        document.getElementById("hdnSelectedTable").value = selectedTable.id;
+
+        // Không chặn submit form
+        document.getElementById("form1").submit();
+    });
+
+
+
+    //function getCartData() {
+    //    return safeParse(sessionStorage.getItem("cartData")) || [];
+    //}
+    //function updatePaymentDetails() {
+    //    // Lấy giỏ hàng từ sessionStorage
+    //    let cart = getCartData();
+
+    //    // Tính toán tổng tiền (subtotal)
+    //    let subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+    //    // Giảm giá (nếu có)
+    //    let discount = parseFloat(document.getElementById('txtDiscountAmount').value.replace(" đ", "")) || 0;
+
+    //    // Thuế giả sử là 10% của giá trị sau khi giảm giá
+    //    let tax = (subtotal - discount) * 0.1;
+
+    //    // Tổng thanh toán sau khi áp dụng thuế và giảm giá
+    //    let finalTotal = subtotal - discount + tax;
+
+    //    // Cập nhật thông tin lên giao diện
+    //    document.getElementById("txtTempTotal").value = `${subtotal} đ`;
+    //    document.getElementById("txtDiscountAmount").value = `${discount} đ`;
+    //    document.getElementById("txtTaxAmount").value = `${tax} đ`;
+    //    document.getElementById("txtFinalTotal").value = `${finalTotal} đ`;
+
+    //    // Hiển thị tổng tiền lên label (có thể là trong modal)
+    //    document.getElementById("lblTotalAmount").textContent = `${finalTotal} đ`;
+    //}
+    //function openPaymentModal() {
+    //    document.getElementById('paymentModal').style.display = 'block';
+    //    updatePaymentDetails(); // Cập nhật thông tin giỏ hàng khi mở modal
+    //}
+    //function showTotalAmountAlert() {
+    //    let cart = getCartData();
+    //    let subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    //    let discount = parseFloat(document.getElementById('txtDiscountAmount').value.replace(" đ", "")) || 0;
+    //    let tax = (subtotal - discount) * 0.1;
+    //    let finalTotal = subtotal - discount + tax;
+
+    //    alert(`Tổng tiền: ${finalTotal} đ`);
+    //}
+
+    document.getElementById('btnConfirmPay').addEventListener('click', function () {
+        event.preventDefault(); // Ngăn chặn hành động submit của form
+        openPaymentModal(); // Mở modal thanh toán
+        updatePaymentTotals();
+    });
+
+    // Hàm mở modal thanh toán
+    function openPaymentModal() {
+        document.getElementById('paymentModal').style.display = 'block';
+    }
+
+    // Hàm đóng modal thanh toán
+    function closePaymentModal() {
+        document.getElementById('paymentModal').style.display = 'none';
+    }
+
+    // Gán sự kiện click cho nút thanh toán để mở modal
+    document.getElementById('btnConfirmPay').addEventListener('click', function () {
+        openPaymentModal();
+    });
+
+    // Đảm bảo đóng modal khi click vào dấu "×"
+    document.querySelector('.close').addEventListener('click', function () {
+        closePaymentModal();
+    });
+
+  
+    const menuIcon = document.querySelector(".menu-icon-btn i");
+    const cartDropdown = document.getElementById("cartDropdownMenu");
+
+    // Ẩn menu ban đầu
+    cartDropdown.style.display = "none";
+
+    // Toggle hiển thị menu
+    menuIcon.addEventListener("click", toggleCartDropdown);
+
+    // Đóng menu khi click ra ngoài
+    document.addEventListener("click", function (event) {
+        if (!menuIcon.contains(event.target) && !cartDropdown.contains(event.target)) {
+            cartDropdown.style.display = "none";
         }
     });
-}
 
-function deleteCartItem(index) {
-    var selectedTableId = document.getElementById("hdnSelectedTable").value;
-    if (!selectedTableId) return;
-    var cart = JSON.parse(sessionStorage.getItem('cart_' + selectedTableId) || '[]');
-    cart.splice(index, 1);
-    sessionStorage.setItem('cart_' + selectedTableId, JSON.stringify(cart));
-    updateCartDisplay();
-    syncCartWithServer();
-}
-
-function updateCustomerCount() {
-    var customerCount = parseInt(document.getElementById("txtCustomerCount").value) || 0;
-    if (customerCount < 0) {
-        document.getElementById("txtCustomerCount").value = 0;
+    // Hàm toggle hiển thị dropdown
+    function toggleCartDropdown() {
+        cartDropdown.style.display = (cartDropdown.style.display === "none") ? "block" : "none";
     }
-}
 
-function addNote(index) {
-    var selectedTableId = document.getElementById("hdnSelectedTable").value;
-    if (!selectedTableId) return;
-    var cart = JSON.parse(sessionStorage.getItem('cart_' + selectedTableId) || '[]');
-    var note = prompt("Nhập ghi chú cho sản phẩm thứ " + (index + 1) + ":");
-    if (note !== null) {
-        cart[index].Note = note;
-        sessionStorage.setItem('cart_' + selectedTableId, JSON.stringify(cart));
-        updateCartDisplay();
-        syncCartWithServer();
-    }
-}
-
-function toggleHeaderMenu() {
-    var menu = document.getElementById("headerDropdownMenu");
-    menu.style.display = menu.style.display === "block" ? "none" : "block";
-}
-
-function toggleCartMenu() {
-    var menu = document.getElementById("cartDropdownMenu");
-    menu.style.display = menu.style.display === "block" ? "none" : "block";
-}
-
-function goToHome() {
-    window.location.href = "tongquan.aspx";
-}
-
-function discount() {
-    var selectedTableId = document.getElementById("hdnSelectedTable").value;
-    if (!selectedTableId) {
-        alert("Vui lòng chọn bàn trước!");
-        return;
-    }
-    var discount = prompt("Nhập phần trăm giảm giá (0-100):", "0");
-    if (discount !== null && !isNaN(discount) && discount >= 0 && discount <= 100) {
-        alert("Đã áp dụng giảm giá " + discount + "%");
-    } else {
-        alert("Giảm giá không hợp lệ!");
-    }
-}
-
-function transferTable() {
-    var selectedTableId = document.getElementById("hdnSelectedTable").value;
-    if (!selectedTableId) {
-        alert("Vui lòng chọn bàn trước!");
-        return;
-    }
-    document.getElementById("currentTable").value = document.getElementById("txtTablePosition").value;
-    document.getElementById("transferTableModal").style.display = "flex";
-}
-
-function confirmTransferTable() {
-    document.getElementById("transferTableModal").style.display = "none";
-    alert("Chuyển bàn thành công (chưa triển khai logic server-side)");
-}
-
-function mergeTable() {
-    var selectedTableId = document.getElementById("hdnSelectedTable").value;
-    if (!selectedTableId) {
-        alert("Vui lòng chọn bàn trước!");
-        return;
-    }
-    document.getElementById("mergeCurrentTable").value = document.getElementById("txtTablePosition").value;
-    document.getElementById("mergeTableModal").style.display = "flex";
-}
-
-function confirmMergeTable() {
-    document.getElementById("mergeTableModal").style.display = "none";
-    alert("Gộp bàn thành công (chưa triển khai logic server-side)");
-}
-
-function splitTable() {
-    var selectedTableId = document.getElementById("hdnSelectedTable").value;
-    if (!selectedTableId) {
-        alert("Vui lòng chọn bàn trước!");
-        return;
-    }
-    document.getElementById("splitCurrentTable").value = document.getElementById("txtTablePosition").value;
-    document.getElementById("splitCustomerCount").value = document.getElementById("txtCustomerCount").value;
-    document.getElementById("splitTableModal").style.display = "flex";
-}
-
-function confirmSplitTable() {
-    document.getElementById("splitTableModal").style.display = "none";
-    alert("Tách bàn thành công (chưa triển khai logic server-side)");
-}
-
-function returnOrder() {
-    var selectedTableId = document.getElementById("hdnSelectedTable").value;
-    if (!selectedTableId) {
-        alert("Vui lòng chọn bàn trước!");
-        return;
-    }
-    var index = prompt("Nhập chỉ số sản phẩm muốn trả (từ 0):");
-    if (index !== null && !isNaN(index) && index >= 0) {
-        deleteCartItem(index);
-    } else {
-        alert("Chỉ số không hợp lệ!");
-    }
-}
-
-function cancelOrder() {
-    var selectedTableId = document.getElementById("hdnSelectedTable").value;
-    if (!selectedTableId) {
-        alert("Vui lòng chọn bàn trước!");
-        return;
-    }
-    if (confirm("Bạn có chắc muốn hủy đơn hàng?")) {
-        sessionStorage.removeItem('cart_' + selectedTableId);
-        updateCartDisplay();
-        syncCartWithServer();
-    }
-}
-
-function showPaymentModal() {
-    var selectedTableId = document.getElementById("hdnSelectedTable").value;
-    if (!selectedTableId) {
-        alert("Vui lòng chọn bàn trước!");
-        return;
-    }
-    updatePaymentTotals();
-    document.getElementById("paymentModal").style.display = "flex";
-}
-
-function closePaymentModal() {
-    document.getElementById("paymentModal").style.display = "none";
-}
-
-function selectPaymentMethod(method) {
-    document.getElementById("paymentCashBtn").classList.toggle("selected", method === "cash");
-    document.getElementById("paymentTransferBtn").classList.toggle("selected", method === "transfer");
-    document.getElementById("hdnPaymentMethod").value = method;
-}
-
-function updatePaymentTotals() {
-    var subtotal = parseFloat(document.getElementById("txtSubtotal").value.replace(" đ", "").replace(/,/g, "")) || 0;
-    var discountPercent = parseFloat(document.getElementById("txtDiscountPercent").value) || 0;
-    var discountAmount = parseFloat(document.getElementById("txtDiscountAmount").value.replace(" đ", "").replace(/,/g, "")) || 0;
-    var taxPercent = parseFloat(document.getElementById("txtTaxPercent").value) || 0;
-
-    var discount = discountAmount + (subtotal * discountPercent / 100);
-    var taxableAmount = subtotal - discount;
-    var tax = taxableAmount * taxPercent / 100;
-    var total = taxableAmount + tax;
-
-    document.getElementById("txtTempTotal").value = formatCurrency(subtotal);
-    document.getElementById("txtTaxAmount").value = formatCurrency(tax);
-    document.getElementById("txtFinalTotal").value = formatCurrency(total);
-    document.getElementById("txtCustomerPay").value = formatCurrency(total);
-    document.getElementById("lblTotalAmount").innerText = formatCurrency(total);
-}
-
-$(document).ready(function () {
-    var activeTab = document.getElementById("hdnActiveTab").value;
-    switchTab(activeTab); // Khởi tạo tab active khi load trang
-
-    // Các code khác giữ nguyên
-    loadCartFromServer();
-
-    $(document).click(function (e) {
-        var headerMenu = $("#headerDropdownMenu");
-        var cartMenu = $("#cartDropdownMenu");
-        if (!headerMenu.is(e.target) && headerMenu.has(e.target).length === 0 && !$(".fa-bars").is(e.target)) {
-            headerMenu.hide();
+    // Hàm hiển thị modal
+    function showModal(modalId) {
+        const modal = document.getElementById(modalId);
+        if (modal) {
+            modal.style.display = "block";
         }
-        if (!cartMenu.is(e.target) && cartMenu.has(e.target).length === 0 && !$(".menu-icon-btn .fa-bars").is(e.target)) {
-            cartMenu.hide();
-        }
+    }
+
+    // Các chức năng mở modal
+    const menuFunctions = {
+        discount: "discountModal",
+        transferTable: "transferTableModal",
+        mergeTable: "mergeTableModal",
+        splitTable: "splitTableModal",
+        returnOrder: "returnOrderModal",
+        cancelOrder: "cancelOrderModal"
+    };
+
+    // Gán sự kiện cho các nút menu
+    Object.keys(menuFunctions).forEach(function (action) {
+        window[action] = function () {
+            showModal(menuFunctions[action]);
+        };
     });
+    // Hàm mở modal thanh toán
+    // Hàm mở modal thanh toán
+    checkStorageLimit(sessionStorage);
+    checkStorageLimit(localStorage);
 });

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data;
+using System.Data.SqlClient;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 
@@ -7,109 +8,137 @@ namespace BTL.View
 {
     public partial class Hang : Page
     {
-        // Giả lập dữ liệu (thay bằng kết nối database thực tế)
-        private DataTable InventoryData
-        {
-            get
-            {
-                if (Session["InventoryData"] == null)
-                {
-                    DataTable dt = new DataTable();
-                    dt.Columns.Add("STT", typeof(int));
-                    dt.Columns.Add("MaSanPham", typeof(string));
-                    dt.Columns.Add("TenSanPham", typeof(string));
-                    dt.Columns.Add("SoLuong", typeof(int));
-                    dt.Columns.Add("DinhLuong", typeof(string));
-                    Session["InventoryData"] = dt;
-                }
-                return (DataTable)Session["InventoryData"];
-            }
-            set { Session["InventoryData"] = value; }
-        }
+        // Chuỗi kết nối đến SQL Server
+        private string connectionString = "Data Source=ADMIN\\SQLEXPRESS;Initial Catalog=qlQuanCafe;Integrated Security=True";
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            //if (!IsPostBack)
-            //{
-            //    // Kiểm tra đăng nhập
-            //    if (Session["User"] == null)
-            //    {
-            //        Response.Redirect("Login.aspx");
-            //    }
-            //    BindGridView();
-            //}
+            if (!IsPostBack) // Chỉ load dữ liệu khi trang mở lần đầu
+            {
+                LoadData();
+            }
         }
 
-        private void BindGridView()
+        // Hàm lấy dữ liệu từ bảng Ingredient
+        private void LoadData()
         {
-            gvInventory.DataSource = InventoryData;
-            gvInventory.DataBind();
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                conn.Open();
+                string query = "SELECT Ingredient_id, Ingredient_name, Quantity, Unit FROM Ingredient";
+                SqlDataAdapter da = new SqlDataAdapter(query, conn);
+                DataTable dt = new DataTable();
+                da.Fill(dt);
+                gvInventory.DataSource = dt;
+                gvInventory.DataBind();
+            }
         }
 
+        // Tìm kiếm nguyên liệu
         protected void btnSearch_Click(object sender, EventArgs e)
         {
-            string searchText = txtSearch.Text.Trim().ToLower();
-            DataTable dt = InventoryData;
-            DataView dv = dt.DefaultView;
-            dv.RowFilter = $"TenSanPham LIKE '%{searchText}%' OR MaSanPham LIKE '%{searchText}%'";
-            gvInventory.DataSource = dv;
-            gvInventory.DataBind();
+            string searchText = txtSearch.Text.Trim();
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                conn.Open();
+                string query = "SELECT Ingredient_id, Ingredient_name, Quantity, Unit FROM Ingredient WHERE Ingredient_name LIKE @search";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@search", "%" + searchText + "%");
+                SqlDataAdapter da = new SqlDataAdapter(cmd);
+                DataTable dt = new DataTable();
+                da.Fill(dt);
+                gvInventory.DataSource = dt;
+                gvInventory.DataBind();
+            }
         }
 
+        // Lưu nguyên liệu mới
         protected void btnSave_Click(object sender, EventArgs e)
         {
-            DataTable dt = InventoryData;
-            DataRow newRow = dt.NewRow();
-            newRow["STT"] = dt.Rows.Count + 1;
-            newRow["MaSanPham"] = txtMaSanPham.Text;
-            newRow["TenSanPham"] = txtTenSanPham.Text;
-            newRow["SoLuong"] = int.Parse(txtSoLuong.Text);
-            newRow["DinhLuong"] = txtDinhLuong.Text;
-            dt.Rows.Add(newRow);
-            InventoryData = dt;
-            BindGridView();
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                conn.Open();
+
+                // Chèn dữ liệu mà KHÔNG có Ingredient_id (SQL Server sẽ tự động tăng)
+                string query = "INSERT INTO Ingredient (Ingredient_name, Quantity, Unit, status) " +
+                               "VALUES (@name, @quantity, @unit, 1)";
+
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@name", txtTenSanPham.Text);
+                cmd.Parameters.AddWithValue("@quantity", Convert.ToDecimal(txtSoLuong.Text));
+                cmd.Parameters.AddWithValue("@unit", txtDinhLuong.Text);
+                cmd.ExecuteNonQuery();
+            }
+
+            LoadData();  // Refresh GridView
+            ShowMessage("Thêm nguyên liệu thành công!");
             ScriptManager.RegisterStartupScript(this, GetType(), "HideModal", "hideModal();", true);
         }
 
-        protected void btnUpdate_Click(object sender, EventArgs e)
+        // Cập nhật nguyên liệu
+        protected void gvInventory_RowEditing(object sender, GridViewEditEventArgs e)
         {
-            // Logic cập nhật (cần thêm modal hoặc cách khác để nhập dữ liệu)
-            Response.Write("<script>alert('Chức năng cập nhật chưa được triển khai!');</script>");
+            gvInventory.EditIndex = e.NewEditIndex;
+            LoadData();
         }
 
-        protected void btnDelete_Click(object sender, EventArgs e)
+        protected void gvInventory_RowUpdating(object sender, GridViewUpdateEventArgs e)
         {
-            Button btn = (Button)sender;
-            GridViewRow row = (GridViewRow)btn.NamingContainer;
-            int index = row.RowIndex;
-            DataTable dt = InventoryData;
-            dt.Rows[index].Delete();
-            InventoryData = dt;
-            BindGridView();
+            GridViewRow row = gvInventory.Rows[e.RowIndex];
+            int id = Convert.ToInt32(gvInventory.DataKeys[e.RowIndex].Value);
+            string name = (row.FindControl("txtEditTenSanPham") as TextBox).Text;
+            decimal quantity = Convert.ToDecimal((row.FindControl("txtEditSoLuong") as TextBox).Text);
+            string unit = (row.FindControl("txtEditDinhLuong") as TextBox).Text;
+
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                conn.Open();
+                string query = "UPDATE Ingredient SET Ingredient_name = @name, Quantity = @quantity, Unit = @unit WHERE Ingredient_id = @id";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@id", id);
+                cmd.Parameters.AddWithValue("@name", name);
+                cmd.Parameters.AddWithValue("@quantity", quantity);
+                cmd.Parameters.AddWithValue("@unit", unit);
+                cmd.ExecuteNonQuery();
+            }
+
+            gvInventory.EditIndex = -1;
+            LoadData();
+            ShowMessage("Cập nhật nguyên liệu thành công!");
         }
 
-        protected void btnLogout_Click(object sender, EventArgs e)
+        protected void gvInventory_RowCancelingEdit(object sender, GridViewCancelEditEventArgs e)
         {
-            Session.Clear();
-            Session.Abandon();
-            Response.Redirect("Login.aspx");
+            gvInventory.EditIndex = -1;
+            LoadData();
         }
 
-        protected void gvInventory_SelectedIndexChanged(object sender, EventArgs e)
+        // Xóa nguyên liệu
+        protected void gvInventory_RowDeleting(object sender, GridViewDeleteEventArgs e)
         {
-            // Có thể dùng để hiển thị chi tiết nếu cần
+            int id = Convert.ToInt32(gvInventory.DataKeys[e.RowIndex].Value);
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                conn.Open();
+                string query = "DELETE FROM Ingredient WHERE Ingredient_id = @id";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@id", id);
+                cmd.ExecuteNonQuery();
+            }
+            LoadData();
+            ShowMessage("Xóa nguyên liệu thành công!");
         }
 
+        private void ShowMessage(string message)
+        {
+            ScriptManager.RegisterStartupScript(this, GetType(), "showalert", "alert('" + message + "');", true);
+        }
+
+        // Đăng xuất
         protected void BtnLogout_Click(object sender, EventArgs e)
         {
-            // Xóa toàn bộ session
             Session.Clear();
             Session.Abandon();
-
-            // Nếu sử dụng FormsAuthentication
-            System.Web.Security.FormsAuthentication.SignOut();
-
-            // Chuyển hướng về trang đăng nhập
             Response.Redirect("homepage.aspx");
         }
     }

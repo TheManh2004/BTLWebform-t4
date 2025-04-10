@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Data.SqlClient;
 using System.Web.UI;
 using System.Web.UI.HtmlControls;
 using System.Web.UI.WebControls;
@@ -9,32 +11,13 @@ namespace BTL.View
     public partial class SoDoBan : Page
     {
         private Dictionary<string, List<string>> tablesByFloor;
+        private string connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["DbConnection"].ToString();
 
         protected void Page_Load(object sender, EventArgs e)
         {
             if (!IsPostBack)
             {
-                // Initialize session data if not already set
-                if (Session["TablesByFloor"] == null)
-                {
-                    tablesByFloor = new Dictionary<string, List<string>>
-                    {
-                        { "1", new List<string> { "Bàn 1", "Bàn 2" } },
-                        { "2", new List<string> { "Bàn 3" } },
-                        { "3", new List<string> { "Bàn 4", "Bàn 5" } }
-                    };
-                    Session["TablesByFloor"] = tablesByFloor;
-                }
-                else
-                {
-                    tablesByFloor = (Dictionary<string, List<string>>)Session["TablesByFloor"];
-                }
-
-                // Load floor buttons dynamically
-                LoadFloorButtons();
-                hdnCurrentFloor.Value = "1";
-                LoadTablesForFloor("1");
-                SetActiveFloorButton("1");
+                LoadFloorButtons(); // Load the floor buttons dynamically
             }
         }
 
@@ -54,67 +37,87 @@ namespace BTL.View
         // Load floor buttons dynamically
         private void LoadFloorButtons()
         {
-            tablesByFloor = (Dictionary<string, List<string>>)Session["TablesByFloor"];
-            floorButtons.Controls.Clear();
+            string query = "SELECT Area_id, AreaName FROM [qlQuanCafe2].[dbo].[Area]"; // Câu lệnh SQL để lấy dữ liệu
 
-            foreach (var floor in tablesByFloor.Keys)
+            using (SqlConnection conn = new SqlConnection(connectionString))
             {
-                Button btn = new Button
-                {
-                    ID = "btnFloor" + floor,
-                    Text = "Tầng " + floor,
-                    CssClass = "btn-floor",
-                    CommandArgument = floor
-                };
-                btn.Click += btnFloor_Click;
-                floorButtons.Controls.Add(btn);
+                conn.Open();
+                SqlDataAdapter da = new SqlDataAdapter(query, conn);
+                DataTable dt = new DataTable();
+                da.Fill(dt);
+
+                // Gán dữ liệu cho Repeater
+                floorButtonsRepeater.DataSource = dt;
+                floorButtonsRepeater.DataBind(); // Bind dữ liệu cho Repeater
             }
         }
 
-        private void LoadTablesForFloor(string floor)
+
+        // Method to load tables for a selected floor
+        // Method to load table names for a selected floor
+        private void LoadTablesForFloor(int areaId)
         {
-            tablesByFloor = (Dictionary<string, List<string>>)Session["TablesByFloor"];
-            tableContainer.Controls.Clear();
+            string query = "SELECT TableFood_name FROM [qlQuanCafe2].[dbo].[TableFood] WHERE idArea = @idArea";
 
-            // Thêm button "Thêm bàn" vào đầu tiên (bên trái)
-            tableContainer.Controls.AddAt(0, btnAddTable);
-
-            // Sau đó thêm các bàn
-            if (tablesByFloor.ContainsKey(floor))
+            using (SqlConnection conn = new SqlConnection(connectionString))
             {
-                foreach (var table in tablesByFloor[floor])
+                conn.Open();
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@idArea", areaId); // Use idArea to fetch tables for that floor
+
+                SqlDataAdapter da = new SqlDataAdapter(cmd);
+                DataTable dt = new DataTable();
+                da.Fill(dt);
+
+                // Bind table names to the repeater
+                if (dt.Rows.Count > 0)
                 {
-                    var tableDiv = new HtmlGenericControl("div");
-                    tableDiv.Attributes["class"] = "table-box";
-                    tableDiv.InnerText = table;
-                    tableContainer.Controls.Add(tableDiv);
+                    repeaterTables.DataSource = dt;
+                    repeaterTables.DataBind();
+                }
+                else
+                {
+                    repeaterTables.DataSource = null;
+                    repeaterTables.DataBind();
                 }
             }
         }
 
-        private void SetActiveFloorButton(string floor)
+
+
+
+        protected void BtnFloor_Click(object sender, EventArgs e)
         {
-            foreach (Control ctrl in floorButtons.Controls)
+            Button clickedButton = (Button)sender;
+            int floorId = Convert.ToInt32(clickedButton.CommandArgument); // Ensure the CommandArgument is a numeric value
+
+            // Load the tables for the selected floor
+            LoadTablesForFloor(floorId);
+        }
+
+
+
+
+
+        private void SetActiveFloorButton(string floorId)
+        {
+            foreach (Control control in floorButtons.Controls)
             {
-                if (ctrl is Button btn)
+                if (control is Button)
                 {
-                    btn.CssClass = "btn-floor";
-                    if (btn.CommandArgument == floor)
+                    Button btn = (Button)control;
+                    if (btn.CommandArgument == floorId)
                     {
-                        btn.CssClass = "btn-floor active";
+                        btn.CssClass = "btn-floor active";  // Mark the button as active
+                    }
+                    else
+                    {
+                        btn.CssClass = "btn-floor";  // Set inactive button class
                     }
                 }
             }
         }
 
-        protected void btnFloor_Click(object sender, EventArgs e)
-        {
-            Button btn = sender as Button;
-            string floor = btn.CommandArgument;
-            hdnCurrentFloor.Value = floor;
-            LoadTablesForFloor(floor);
-            SetActiveFloorButton(floor);
-        }
 
         protected void btnAddTable_Click(object sender, EventArgs e)
         {
@@ -123,25 +126,63 @@ namespace BTL.View
 
         protected void btnSaveTable_Click(object sender, EventArgs e)
         {
-            string floor = hdnFloor.Value;
+            string floorName = txtFloor.Text.Trim();
             string tableName = txtTableName.Text.Trim();
+            int idArea = Convert.ToInt32(hdnAreaId.Value); // Lấy idArea từ hidden field
 
             if (!string.IsNullOrEmpty(tableName))
             {
-                tablesByFloor = (Dictionary<string, List<string>>)Session["TablesByFloor"];
-
-                if (!tablesByFloor.ContainsKey(floor))
+                using (SqlConnection conn = new SqlConnection(connectionString))
                 {
-                    tablesByFloor[floor] = new List<string>();
+                    conn.Open();
+
+                    // Check if the table name already exists
+                    string checkQuery = @"
+            SELECT COUNT(*) 
+            FROM [qlQuanCafe2].[dbo].[TableFood]
+            WHERE TableFood_name = @tableFoodName";
+
+                    using (SqlCommand cmdCheck = new SqlCommand(checkQuery, conn))
+                    {
+                        cmdCheck.Parameters.AddWithValue("@tableFoodName", tableName);
+
+                        int count = (int)cmdCheck.ExecuteScalar();
+
+                        if (count > 0)
+                        {
+                            // Table name already exists, show error message
+                            ClientScript.RegisterStartupScript(this.GetType(), "alert", "alert('Tên bàn đã tồn tại, vui lòng chọn tên khác!');", true);
+                            return;
+                        }
+                    }
+
+                    // INSERT vào bảng TableFood nếu tên bàn chưa tồn tại
+                    string insertQuery = @"
+            INSERT INTO [qlQuanCafe2].[dbo].[TableFood] 
+                (TableFood_name, idArea, status, currentBill_id) 
+            VALUES 
+                (@tableFoodName, @idArea, @status, NULL)";
+
+                    using (SqlCommand cmdInsert = new SqlCommand(insertQuery, conn))
+                    {
+                        cmdInsert.Parameters.AddWithValue("@tableFoodName", tableName);
+                        cmdInsert.Parameters.AddWithValue("@idArea", idArea); // Sử dụng idArea từ hidden field
+                        cmdInsert.Parameters.AddWithValue("@status", 0); //0 nghĩa là bàn trống
+
+                        cmdInsert.ExecuteNonQuery();
+                    }
+
+                    // Thông báo thêm bàn thành công và đóng modal
+                    txtTableName.Text = "";
+                    ClientScript.RegisterStartupScript(this.GetType(), "alert", "alert('Thêm bàn thành công!'); closeModal('addTableModal');", true);
                 }
-
-                tablesByFloor[floor].Add(tableName);
-                Session["TablesByFloor"] = tablesByFloor;
-
-                LoadTablesForFloor(floor);
-                SetActiveFloorButton(floor);
+            }
+            else
+            {
+                ClientScript.RegisterStartupScript(this.GetType(), "alert", "alert('Vui lòng nhập tên bàn!');", true);
             }
         }
+
 
         protected void btnAddArea_Click(object sender, EventArgs e)
         {
@@ -150,28 +191,40 @@ namespace BTL.View
 
         protected void btnSaveArea_Click(object sender, EventArgs e)
         {
-            string newFloorName = txtNewFloorName.Text.Trim();
+            string newAreaName = txtNewFloorName.Text.Trim(); // Get the new area name from the TextBox
 
-            if (!string.IsNullOrEmpty(newFloorName))
+            if (!string.IsNullOrEmpty(newAreaName))
             {
-                tablesByFloor = (Dictionary<string, List<string>>)Session["TablesByFloor"];
-
-                // Extract the floor number (e.g., "Tầng 4" -> "4")
-                string floorNumber = newFloorName.Replace("Tầng ", "").Trim();
-                if (!tablesByFloor.ContainsKey(floorNumber))
+                // Insert the new area into the database
+                using (SqlConnection conn = new SqlConnection(connectionString))
                 {
-                    tablesByFloor[floorNumber] = new List<string>();
-                    Session["TablesByFloor"] = tablesByFloor;
+                    conn.Open();
+                    string query = "INSERT INTO [qlQuanCafe2].[dbo].[Area] (AreaName) VALUES (@AreaName)"; // Insert query
 
-                    // Reload floor buttons
-                    LoadFloorButtons();
-
-                    // Switch to the new floor
-                    hdnCurrentFloor.Value = floorNumber;
-                    LoadTablesForFloor(floorNumber);
-                    SetActiveFloorButton(floorNumber);
+                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@AreaName", newAreaName); // Add parameter to avoid SQL injection
+                        cmd.ExecuteNonQuery(); // Execute the query
+                    }
                 }
+
+                // After inserting, reload the floor buttons to reflect the change
+                LoadFloorButtons();
+
+                // Clear the TextBox for the next input
+                //txtNewFloorName.Text = "";
+
+                // Optionally, close the modal if you want
+
+            }
+            else
+            {
+                // Handle case where no input is provided (optional)
+                // Show a message to the user indicating the area name is required
             }
         }
+
+
+
     }
 }

@@ -1,76 +1,88 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+using System.Data.SqlClient;
 using System.Web.UI;
-using System.Web.UI.WebControls;
 
 namespace BTL.View
 {
     public partial class homepage : System.Web.UI.Page
     {
+        // Chuỗi kết nối đến SQL Server (cập nhật với thông tin kết nối thực tế của bạn)
+        private string connectionString = "Server=DESKTOP-9UGDVKE\\SQLEXPRESS;Database=qlQuanCafe2;Integrated Security=True;";
+
         protected void Page_Load(object sender, EventArgs e)
         {
-            if (!IsPostBack)
+            // If the user is already logged in, redirect them to their profile page
+            if (Session["UserName"] != null)
             {
-                // Khởi tạo trang khi load lần đầu
+                Response.Redirect("TTCaNhan.aspx");
             }
         }
+
 
         protected void btnLogin_Click(object sender, EventArgs e)
         {
             string user = username.Text.Trim();
             string pass = password.Text.Trim();
 
-            // Kiểm tra input rỗng
+            // Check if inputs are not empty
             if (string.IsNullOrEmpty(user) || string.IsNullOrEmpty(pass))
             {
-                ScriptManager.RegisterStartupScript(this, GetType(), "alert",
-                    "alert('Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu');", true);
+                ScriptManager.RegisterStartupScript(this, GetType(), "alert", "alert('Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu');", true);
                 return;
             }
 
-            // Kiểm tra thông tin đăng nhập
+            // Validate user credentials
             if (ValidateUser(user, pass))
             {
-                Session["Username"] = user;
-                Response.Redirect("tongquan.aspx"); // Chuyển hướng đến trang tổng quan
+                // Store the username in session
+                Session["UserName"] = user;
+
+                // Check the user's role and redirect accordingly
+                string role = GetUserRole(user);
+                if (role == "1") // Admin
+                {
+                    Response.Redirect("tongquan.aspx");
+                }
+                else // Normal user
+                {
+                    Response.Redirect("TTCaNhan.aspx");
+                }
             }
             else
             {
-                ScriptManager.RegisterStartupScript(this, GetType(), "alert",
-                    "alert('Tên đăng nhập hoặc mật khẩu không đúng');", true);
+                ScriptManager.RegisterStartupScript(this, GetType(), "alert", "alert('Tên đăng nhập hoặc mật khẩu không đúng');", true);
             }
         }
 
-        // Kiểm tra thông tin đăng nhập với tài khoản cụ thể
+
+        // Kiểm tra thông tin đăng nhập từ SQL Server
         private bool ValidateUser(string username, string password)
         {
-            // Tài khoản cụ thể: admin / MatcCoffee123
-            return (username.ToLower() == "admin" && password == "12345678");
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                string query = "SELECT COUNT(*) FROM [Account] WHERE UserName = @UserName AND PassWord = @Password";
+                SqlCommand command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@UserName", username);
+                command.Parameters.AddWithValue("@Password", password); // Remember to hash the password in real applications
+
+                connection.Open();
+                int userCount = (int)command.ExecuteScalar();
+
+                return userCount > 0; // If user exists
+            }
         }
 
-        protected void lnkForgotPassword_Click(object sender, EventArgs e)
+        // Get the user's role (admin or staff)
+        private string GetUserRole(string username)
         {
-            string user = username.Text.Trim();
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                string query = "SELECT idRole FROM [Account] WHERE UserName = @UserName";
+                SqlCommand command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@UserName", username);
 
-            if (string.IsNullOrEmpty(user))
-            {
-                ScriptManager.RegisterStartupScript(this, GetType(), "alert",
-                    "alert('Vui lòng nhập tên đăng nhập');", true);
-                return;
-            }
-
-            if (user.ToLower() == "admin")
-            {
-                // Giả lập gửi email
-                ScriptManager.RegisterStartupScript(this, GetType(), "alert",
-                    "alert('Link khôi phục mật khẩu đã được gửi tới email của admin. Vui lòng kiểm tra hộp thư!');", true);
-            }
-            else
-            {
-                ScriptManager.RegisterStartupScript(this, GetType(), "alert",
-                    "alert('Tên đăng nhập không tồn tại');", true);
+                connection.Open();
+                return command.ExecuteScalar()?.ToString();
             }
         }
     }

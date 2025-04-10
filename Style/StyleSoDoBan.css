@@ -139,6 +139,14 @@
     font-size: 16px;
     cursor: pointer;
 }
+.floor-btn {
+    width: 100px;
+    border: none;
+    background: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+}
 
     .btn-floor.active {
         background-color: #D2B48C;

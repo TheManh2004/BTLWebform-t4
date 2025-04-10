@@ -11,46 +11,49 @@ namespace BTL.View
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            if (!IsPostBack)
+            // If the user is already logged in, redirect them to their profile page
+            if (Session["UserName"] != null)
             {
-                // Khởi tạo trang khi load lần đầu
+                Response.Redirect("TTCaNhan.aspx");
             }
         }
+
 
         protected void btnLogin_Click(object sender, EventArgs e)
         {
             string user = username.Text.Trim();
             string pass = password.Text.Trim();
 
-            // Kiểm tra input rỗng
+            // Check if inputs are not empty
             if (string.IsNullOrEmpty(user) || string.IsNullOrEmpty(pass))
             {
-                ScriptManager.RegisterStartupScript(this, GetType(), "alert",
-                    "alert('Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu');", true);
+                ScriptManager.RegisterStartupScript(this, GetType(), "alert", "alert('Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu');", true);
                 return;
             }
 
-            // Kiểm tra thông tin đăng nhập
+            // Validate user credentials
             if (ValidateUser(user, pass))
             {
-                // Sau khi đăng nhập thành công, kiểm tra quyền của người dùng và chuyển hướng tương ứng
-                string role = GetUserRole(user);
+                // Store the username in session
+                Session["UserName"] = user;
 
-                if (role == "1") // Giả sử "1" là admin
+                // Check the user's role and redirect accordingly
+                string role = GetUserRole(user);
+                if (role == "1") // Admin
                 {
-                    Response.Redirect("tongquan.aspx"); // Nếu là admin, chuyển hướng tới trang tổng quan
+                    Response.Redirect("tongquan.aspx");
                 }
-                else
+                else // Normal user
                 {
-                    Response.Redirect("BanHang.aspx"); // Nếu không phải admin, chuyển hướng tới trang bán hàng
+                    Response.Redirect("TTCaNhan.aspx");
                 }
             }
             else
             {
-                ScriptManager.RegisterStartupScript(this, GetType(), "alert",
-                    "alert('Tên đăng nhập hoặc mật khẩu không đúng');", true);
+                ScriptManager.RegisterStartupScript(this, GetType(), "alert", "alert('Tên đăng nhập hoặc mật khẩu không đúng');", true);
             }
         }
+
 
         // Kiểm tra thông tin đăng nhập từ SQL Server
         private bool ValidateUser(string username, string password)
@@ -58,31 +61,28 @@ namespace BTL.View
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 string query = "SELECT COUNT(*) FROM [Account] WHERE UserName = @UserName AND PassWord = @Password";
-
                 SqlCommand command = new SqlCommand(query, connection);
                 command.Parameters.AddWithValue("@UserName", username);
-                command.Parameters.AddWithValue("@Password", password);
+                command.Parameters.AddWithValue("@Password", password); // Remember to hash the password in real applications
 
                 connection.Open();
                 int userCount = (int)command.ExecuteScalar();
 
-                return userCount > 0; // Nếu số lượng người dùng lớn hơn 0, tức là có tài khoản trùng khớp
+                return userCount > 0; // If user exists
             }
         }
 
-        // Lấy vai trò của người dùng (admin hoặc nhân viên)
+        // Get the user's role (admin or staff)
         private string GetUserRole(string username)
         {
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
-                // Cập nhật truy vấn để lấy cột idRole thay vì Role
                 string query = "SELECT idRole FROM [Account] WHERE UserName = @UserName";
-
                 SqlCommand command = new SqlCommand(query, connection);
                 command.Parameters.AddWithValue("@UserName", username);
 
                 connection.Open();
-                return command.ExecuteScalar()?.ToString(); // Trả về giá trị của idRole (1 = admin, 2 = nhân viên...)
+                return command.ExecuteScalar()?.ToString();
             }
         }
     }

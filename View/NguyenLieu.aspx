@@ -50,8 +50,7 @@
                 <div id="addHangModal" class="modal">
                     <div class="modal-content">
                         <h2>Thêm nguyên liệu</h2>
-                        <label>Mã sản phẩm</label>
-                        <asp:TextBox ID="txtMaSanPham" runat="server" />
+                       
                         <label>Tên sản phẩm</label>
                         <asp:TextBox ID="txtTenSanPham" runat="server" />
                         <label>Số lượng</label>

@@ -224,26 +224,7 @@
             </div>
         </div>
 
-        <!-- Modal Gộp bàn -->
-        <div id="mergeTableModal" class="modal" style="display:none;">
-            <div class="modal-content">
-                <span class="close" onclick="document.getElementById('mergeTableModal').style.display='none'">×</span>
-                <h3>Gộp bàn</h3>
-                <div class="modal-row">
-                    <label>Bàn hiện tại</label>
-                    <input type="text" id="mergeCurrentTable" readonly="readonly" />
-                </div>
-                <div class="modal-row">
-                    <label>Gộp với</label>
-                    <select id="mergeTargetTable">
-                        <option value="">Chọn bàn</option>
-                    </select>
-                </div>
-                <div class="modal-row">
-                    <button type="button" >Xác nhận</button>
-                </div>
-            </div>
-        </div>
+    
     </form>
 
 <script src="../Scripts/ScriptsCode/DashboardJS.js"></script>

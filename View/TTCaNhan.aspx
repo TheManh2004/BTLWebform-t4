@@ -49,10 +49,7 @@
                         <label>Số điện thoại</label>
                         <asp:TextBox ID="txtPhone" runat="server"></asp:TextBox>
                     </div>
-                    <div class="form-group">
-                        <label>Email</label>
-                        <asp:TextBox ID="txtEmail" runat="server"></asp:TextBox>
-                    </div>
+             
                     <div class="form-group">
                         <label>Địa chỉ</label>
                         <asp:TextBox ID="txtAddress" runat="server"></asp:TextBox>

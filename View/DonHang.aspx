@@ -50,23 +50,16 @@
                     <asp:ListItem Text="Đã hủy" Value="DaHuy" />
                 </asp:DropDownList>
                 <asp:Button ID="btnExport" runat="server" Text="Xuất Excel" class="btn-export" OnClick="btnExport_Click" />
-                <asp:Button ID="btnUpdate" runat="server" Text="Cập nhật" class="btn-update" OnClick="btnUpdate_Click" />
+               
             </div>
             <hr />
             <!-- GridView for Inventory -->
             <asp:GridView ID="gvInventory" runat="server" AutoGenerateColumns="False" CssClass="gridview" OnSelectedIndexChanged="gvInventory_SelectedIndexChanged">
                 <Columns>
-                    <asp:TemplateField>
-                        <ItemTemplate>
-                            <asp:CheckBox ID="chkRow" runat="server" />
-                        </ItemTemplate>
-                    </asp:TemplateField>
-                    <asp:BoundField DataField="STT" HeaderText="STT" />
                     <asp:BoundField DataField="MaHoaDon" HeaderText="Mã hóa đơn" />
                     <asp:BoundField DataField="NgayGiao" HeaderText="Ngày giao" />
                     <asp:BoundField DataField="NhanVien" HeaderText="Nhân viên" />
                     <asp:BoundField DataField="TongTien" HeaderText="Tổng tiền" />
-                    <asp:BoundField DataField="ThanhToan" HeaderText="Thanh toán" />
                     <asp:BoundField DataField="TrangThai" HeaderText="Trạng thái" />
                     <asp:BoundField DataField="GhiChu" HeaderText="Ghi chú" />
                 </Columns>

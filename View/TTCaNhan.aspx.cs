@@ -6,74 +6,82 @@ namespace BTL.View
 {
     public partial class TTCaNhan : System.Web.UI.Page
     {
+        private string connectionString = "Server=DESKTOP-9UGDVKE\\SQLEXPRESS;Database=qlQuanCafe2;Integrated Security=True;";
+
         protected void Page_Load(object sender, EventArgs e)
         {
             if (!IsPostBack)
             {
-                LoadPersonalInfo();
+                // Lấy tên đăng nhập từ session
+                string username = Session["UserName"]?.ToString();
+
+                // Nếu không có session (nghĩa là người dùng chưa đăng nhập), chuyển về trang đăng nhập
+                if (string.IsNullOrEmpty(username))
+                {
+                    Response.Redirect("homepage.aspx"); // Chuyển hướng về trang đăng nhập nếu chưa đăng nhập
+                }
+
+                // Truy vấn cơ sở dữ liệu để lấy thông tin người dùng và hiển thị
+                LoadPersonalInfo(username);
             }
         }
 
-        private void LoadPersonalInfo()
+        private void LoadPersonalInfo(string username)
         {
-            string username = Session["UserName"]?.ToString();
-            if (string.IsNullOrEmpty(username)) return;
-
-            string connectionString = System.Configuration.ConfigurationManager
-                                        .ConnectionStrings["MyConnectionString"].ConnectionString;
-
-            using (SqlConnection conn = new SqlConnection(connectionString))
+            // Truy vấn cơ sở dữ liệu để lấy thông tin người dùng từ bảng [Account]
+            using (SqlConnection connection = new SqlConnection(connectionString))
             {
-                string query = "SELECT * FROM Account WHERE UserName = @username";
-                SqlCommand cmd = new SqlCommand(query, conn);
-                cmd.Parameters.AddWithValue("@username", username);
+                string query = "SELECT UserName, Name, Phone, Address FROM [Account] WHERE UserName = @UserName";
+                SqlCommand command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@UserName", username);
 
-                conn.Open();
-                SqlDataReader reader = cmd.ExecuteReader();
-                if (reader.Read())
+                connection.Open();
+                SqlDataReader reader = command.ExecuteReader();
+
+                if (reader.Read()) // Nếu tìm thấy người dùng trong cơ sở dữ liệu
                 {
                     txtUsername.Text = reader["UserName"].ToString();
                     txtFullName.Text = reader["Name"].ToString();
                     txtPhone.Text = reader["Phone"].ToString();
-                    txtEmail.Text = reader["Email"]?.ToString();
                     txtAddress.Text = reader["Address"].ToString();
                 }
-                reader.Close();
+                else
+                {
+                    // Nếu không tìm thấy người dùng, chuyển về trang đăng nhập
+                    Response.Redirect("homepage.aspx");
+                }
             }
         }
 
         protected void btnUpdate_Click(object sender, EventArgs e)
         {
-            string username = Session["UserName"]?.ToString();
-            if (string.IsNullOrEmpty(username)) return;
+            string username = txtUsername.Text;
+            string fullName = txtFullName.Text;
+            string phone = txtPhone.Text;
+            string address = txtAddress.Text;
 
-            string fullName = txtFullName.Text.Trim();
-            string phone = txtPhone.Text.Trim();
-            string email = txtEmail.Text.Trim();
-            string address = txtAddress.Text.Trim();
-
-            string connectionString = System.Configuration.ConfigurationManager
-                                        .ConnectionStrings["MyConnectionString"].ConnectionString;
-
-            using (SqlConnection conn = new SqlConnection(connectionString))
+            // Cập nhật thông tin vào cơ sở dữ liệu
+            using (SqlConnection connection = new SqlConnection(connectionString))
             {
-                string query = @"UPDATE Account 
-                                 SET Name = @name, Phone = @phone, Email = @email, Address = @address 
-                                 WHERE UserName = @username";
+                string query = "UPDATE [Account] SET Name = @Name, Phone = @Phone, Address = @Address WHERE UserName = @UserName";
+                SqlCommand command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@UserName", username);
+                command.Parameters.AddWithValue("@Name", fullName);
+                command.Parameters.AddWithValue("@Phone", phone);
+                command.Parameters.AddWithValue("@Address", address);
 
-                SqlCommand cmd = new SqlCommand(query, conn);
-                cmd.Parameters.AddWithValue("@name", fullName);
-                cmd.Parameters.AddWithValue("@phone", phone);
-                cmd.Parameters.AddWithValue("@email", email);
-                cmd.Parameters.AddWithValue("@address", address);
-                cmd.Parameters.AddWithValue("@username", username);
+                connection.Open();
+                int rowsAffected = command.ExecuteNonQuery();
 
-                conn.Open();
-                cmd.ExecuteNonQuery();
+                if (rowsAffected > 0)
+                {
+                    ScriptManager.RegisterStartupScript(this, GetType(), "alert", "alert('Cập nhật thông tin thành công!');", true);
+                }
+                else
+                {
+                    ScriptManager.RegisterStartupScript(this, GetType(), "alert", "alert('Cập nhật không thành công!');", true);
+                }
             }
-
-            ScriptManager.RegisterStartupScript(this, GetType(), "alert",
-                "alert('✅ Cập nhật thông tin thành công!');", true);
         }
 
         protected void btnSavePassword_Click(object sender, EventArgs e)
@@ -99,17 +107,61 @@ namespace BTL.View
                 return;
             }
 
-            string connectionString = System.Configuration.ConfigurationManager
-                                        .ConnectionStrings["MyConnectionString"].ConnectionString;
+            // Lấy tên đăng nhập từ session
+            string username = Session["UserName"]?.ToString();
+            if (string.IsNullOrEmpty(username))
+            {
+                Response.Redirect("homepage.aspx");
+                return;
+            }
 
-            using (SqlConnection conn = new SqlConnection(connectionString))
+            string storedPassword = "";
+
+            // Kiểm tra mật khẩu hiện tại từ cơ sở dữ liệu
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                string query = "SELECT PassWord FROM [Account] WHERE UserName = @UserName";
+                SqlCommand command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@UserName", username);
+
+                connection.Open();
+                SqlDataReader reader = command.ExecuteReader();
+
+                if (reader.Read())
+                {
+                    storedPassword = reader["PassWord"].ToString();
+                }
+            }
+
+            // Kiểm tra mật khẩu hiện tại
+            if (currentPassword != storedPassword)
             {
                 string checkQuery = "SELECT PassWord FROM Account WHERE UserName = @username";
                 SqlCommand checkCmd = new SqlCommand(checkQuery, conn);
                 checkCmd.Parameters.AddWithValue("@username", username);
 
-                conn.Open();
-                string storedPassword = (string)checkCmd.ExecuteScalar();
+            // Mã hóa mật khẩu mới trước khi lưu vào cơ sở dữ liệu
+            // Bạn có thể sử dụng các kỹ thuật mã hóa như SHA256 hoặc bcrypt ở đây
+
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                string query = "UPDATE [Account] SET PassWord = @NewPassword WHERE UserName = @UserName";
+                SqlCommand command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@NewPassword", newPassword);  // Chú ý: Mã hóa mật khẩu trong thực tế
+                command.Parameters.AddWithValue("@UserName", username);
+
+                connection.Open();
+                int rowsAffected = command.ExecuteNonQuery();
+
+                if (rowsAffected > 0)
+                {
+                    ScriptManager.RegisterStartupScript(this, GetType(), "alert", "alert('Đặt lại mật khẩu thành công!');", true);
+                }
+                else
+                {
+                    ScriptManager.RegisterStartupScript(this, GetType(), "alert", "alert('Đặt lại mật khẩu không thành công!');", true);
+                }
+            }
 
                 if (storedPassword != currentPassword)
                 {

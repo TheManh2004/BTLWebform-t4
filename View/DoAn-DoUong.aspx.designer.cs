@@ -96,24 +96,6 @@ namespace BTL.View
         protected global::System.Web.UI.WebControls.TextBox txtSearch;
 
         /// <summary>
-        /// ddlSearchCategory control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.DropDownList ddlSearchCategory;
-
-        /// <summary>
-        /// ddlSearchUnit control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.DropDownList ddlSearchUnit;
-
-        /// <summary>
         /// btnSearch control.
         /// </summary>
         /// <remarks>
@@ -123,21 +105,12 @@ namespace BTL.View
         protected global::System.Web.UI.WebControls.Button btnSearch;
 
         /// <summary>
-        /// btnEdit1 control.
+        /// GridView1 control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnEdit1;
-
-        /// <summary>
-        /// btnDelete1 control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnDelete1;
+        protected global::System.Web.UI.WebControls.GridView GridView1;
     }
 }

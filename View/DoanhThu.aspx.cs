@@ -68,6 +68,59 @@ namespace BTL.View
                     toDate.Text = endOfMonth.ToString("yyyy-MM-dd");
                     break;
             }
+
+            // Load revenue data with updated date range
+            LoadRevenueData(sender, e);
+        }
+
+        protected void LoadRevenueData(object sender, EventArgs e)
+        {
+            try
+            {
+                DateTime startDate = DateTime.Parse(fromDate.Text);
+                DateTime endDate = DateTime.Parse(toDate.Text);
+
+                using (SqlConnection conn = new SqlConnection(connectionString))
+                {
+                    using (SqlCommand cmd = new SqlCommand("GetRevenueData", conn))
+                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.AddWithValue("@StartDate", startDate);
+                        cmd.Parameters.AddWithValue("@EndDate", endDate);
+
+                        conn.Open();
+                        SqlDataAdapter adapter = new SqlDataAdapter(cmd);
+                        DataTable dt = new DataTable();
+                        adapter.Fill(dt);
+
+                        // Bind the data to a GridView control
+                        revenueGridView.DataSource = dt;
+                        revenueGridView.DataBind();
+
+                        // Calculate and display totals
+                        decimal totalRevenue = 0;
+                        decimal totalTax = 0;
+                        decimal totalProfit = 0;
+
+                        foreach (DataRow row in dt.Rows)
+                        {
+                            totalRevenue += Convert.ToDecimal(row["TotalRevenue"]);
+                            totalTax += Convert.ToDecimal(row["Tax"]);
+                            totalProfit += Convert.ToDecimal(row["Profit"]);
+                        }
+
+                        lblTotalRevenue.Text = totalRevenue.ToString("N0");
+                        lblTotalTax.Text = totalTax.ToString("N0");
+                        lblTotalProfit.Text = totalProfit.ToString("N0");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // Handle the exception (log it, display error message, etc.)
+                lblErrorMessage.Text = "Error loading revenue data: " + ex.Message;
+                lblErrorMessage.Visible = true;
+            }
         }
     }
 }

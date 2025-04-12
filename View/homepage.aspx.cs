@@ -6,12 +6,7 @@ namespace BTL.View
 {
     public partial class homepage : System.Web.UI.Page
     {
-        // Chuỗi kết nối đến SQL Server (cập nhật với thông tin kết nối thực tế của bạn)
-<<<<<<< HEAD
         private string connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["MyConnectionString"].ToString();
-=======
-        private string connectionString = "Server=Manh\\SQLEXPRESS;Database=qlQuanCafe;User Id=sa;Password=123";
->>>>>>> fa1b14d317d3aaa827398406394c3a53261b4331
 
         protected void Page_Load(object sender, EventArgs e)
         {

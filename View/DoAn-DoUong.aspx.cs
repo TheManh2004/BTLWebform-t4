@@ -128,13 +128,8 @@ namespace BTL.View
             // Thêm món ăn mới vào cơ sở dữ liệu
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
-<<<<<<< HEAD
                 string query = "INSERT INTO [qlQuanCafe].[dbo].[Food] (Food_name, idCategory, price, idDVT, status, img) " +
                                "VALUES (@FoodName, @CategoryId, @Price, @UnitId, @Status, @ImagePath)";
-=======
-                string query = "INSERT INTO [qlQuanCafe].[dbo].[Food] (Food_name, idCategory, price, idDVT, status) " +
-                               "VALUES (@FoodName, @CategoryId, @Price, @UnitId, @Status)";
->>>>>>> fa1b14d317d3aaa827398406394c3a53261b4331
 
                 SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@FoodName", foodName);
@@ -340,7 +335,6 @@ namespace BTL.View
 
                 using (SqlConnection conn = new SqlConnection(connectionString))
                 {
-<<<<<<< HEAD
                     string query;
                     if (imagePath != null)
                     {
@@ -355,11 +349,6 @@ namespace BTL.View
                                   WHERE Food_id = @FoodId";
                     }
 
-=======
-                    string query = @"UPDATE [qlQuanCafe].[dbo].[Food] 
-                            SET Food_name = @FoodName, price = @Price, status = @Status 
-                            WHERE Food_id = @FoodId";
->>>>>>> fa1b14d317d3aaa827398406394c3a53261b4331
                     SqlCommand cmd = new SqlCommand(query, conn);
                     cmd.Parameters.AddWithValue("@FoodId", foodId);
                     cmd.Parameters.AddWithValue("@FoodName", updatedFoodName);

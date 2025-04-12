@@ -18,14 +18,14 @@
         <a href="tongquan.aspx">Tổng quan</a>
         <a href="SoDoBan.aspx">Sơ đồ bàn</a>
         <div class="box1" >
-            <a href="AnUong.aspx">Đồ uống, món ăn</a>
+            <a href="DoAn-DoUong.aspx">Đồ uống, món ăn</a>
             <i class="fa-solid fa-caret-right rotate" id="icon" onclick="toggleSubMenu(event)"></i>
         </div>
         <div class="submenu" id="submenu">
             <a href="ThucDon.aspx">Nhóm thực đơn</a>
             <a href="DonViTinh.aspx">Đơn vị tính</a>
         </div>
-        <a href="DoanhThu.aspx">Thông kê doanh thu</a>
+        <a href="DoanhThu.aspx">Thống kê doanh thu</a>
         <a href="DonHang.aspx">Quản lý đơn hàng</a>
         <a href="qlNV.aspx">Quản lý nhân viên</a>
         <a href="NguyenLieu.aspx">Quản Lý nguyên liệu</a>
@@ -64,36 +64,24 @@
             
             <!-- Table Section -->
             <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Thời gian</th>
-                            <th>Doanh thu</th>
-                            <th>Thuế</th>
-                            <th>Lợi nhuận</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>02/03/2025</td>
-                            <td>1,499,000</td>
-                            <td>89,000</td>
-                            <td>?</td>
-                        </tr>
-                        <tr>
-                            <td>03/03/2025</td>
-                            <td>2,000,000</td>
-                            <td>100,000</td>
-                            <td>?</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Tổng cộng</strong></td>
-                            <td><strong>3,499,000</strong></td>
-                            <td><strong>189,000</strong></td>
-                            <td><strong>?</strong></td>
-                        </tr>
-                    </tbody>
-                </table>
+                <asp:GridView ID="revenueGridView" runat="server" AutoGenerateColumns="false" CssClass="revenue-table"
+                    EmptyDataText="Không có dữ liệu doanh thu cho khoảng thời gian đã chọn">
+                    <Columns>
+                        <asp:BoundField DataField="Date" HeaderText="Thời gian" DataFormatString="{0:dd/MM/yyyy}" />
+                        <asp:BoundField DataField="TotalRevenue" HeaderText="Doanh thu" DataFormatString="{0:N0}" />
+                        <asp:BoundField DataField="Tax" HeaderText="Thuế" DataFormatString="{0:N0}" />
+                        <asp:BoundField DataField="Profit" HeaderText="Lợi nhuận" DataFormatString="{0:N0}" />
+                    </Columns>
+                </asp:GridView>
+                
+                <div class="totals-container">
+                    <div class="total-row">
+                        <span class="total-label"><strong>Tổng cộng</strong></span>
+                        <span class="total-value"><strong><asp:Label ID="lblTotalRevenue" runat="server"></asp:Label></strong></span>
+                        <span class="total-value"><strong><asp:Label ID="lblTotalTax" runat="server"></asp:Label></strong></span>
+                        <span class="total-value"><strong><asp:Label ID="lblTotalProfit" runat="server"></asp:Label></strong></span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

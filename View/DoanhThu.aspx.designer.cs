@@ -87,15 +87,6 @@ namespace BTL.View
         protected global::System.Web.UI.WebControls.GridView revenueGridView;
 
         /// <summary>
-        /// lblTotalOrders control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblTotalOrders;
-
-        /// <summary>
         /// lblTotalRevenue control.
         /// </summary>
         /// <remarks>
@@ -103,5 +94,23 @@ namespace BTL.View
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Label lblTotalRevenue;
+
+        /// <summary>
+        /// lblTotalTax control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label lblTotalTax;
+
+        /// <summary>
+        /// lblTotalProfit control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label lblTotalProfit;
     }
 }

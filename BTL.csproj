@@ -191,8 +191,8 @@
     <Content Include="Style\StyleNguyenLieu.css" />
     <Content Include="Style\StyleDonViTinh.css" />
     <Content Include="Style\StyleDoanhThu.css" />
-    <Content Include="Style\StyleAnUong.css" />
-    <Content Include="Style\StyleDashboard.css" />
+    <Content Include="Style\StyleDoAn-DoUong.css" />
+    <Content Include="Style\StyleBanHang.css" />
     <Content Include="Style\StyleDonHang.css" />
     <Content Include="Style\StyleHomePage.css" />
     <Content Include="Style\StyleQlNV.css" />
@@ -201,8 +201,8 @@
     <Content Include="Style\StyleTongQuan.css" />
     <Content Include="Style\StyleTTCaNhan.css" />
     <Content Include="ViewSwitcher.ascx" />
-    <Content Include="View\AnUong.aspx" />
-    <Content Include="View\Dashboard.aspx" />
+    <Content Include="View\DoAn-DoUong.aspx" />
+    <Content Include="View\BanHang.aspx" />
     <Content Include="View\DoanhThu.aspx" />
     <Content Include="View\DonHang.aspx" />
     <Content Include="View\DonViTinh.aspx" />
@@ -266,6 +266,7 @@
     <Compile Include="Site.Mobile.Master.designer.cs">
       <DependentUpon>Site.Mobile.Master</DependentUpon>
     </Compile>
+    <Compile Include="System\Web\UI\WebControls\GridViewRowType.cs" />
     <Compile Include="ViewSwitcher.ascx.cs">
       <DependentUpon>ViewSwitcher.ascx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -273,19 +274,19 @@
     <Compile Include="ViewSwitcher.ascx.designer.cs">
       <DependentUpon>ViewSwitcher.ascx</DependentUpon>
     </Compile>
-    <Compile Include="View\AnUong.aspx.cs">
-      <DependentUpon>AnUong.aspx</DependentUpon>
+    <Compile Include="View\DoAn-DoUong.aspx.cs">
+      <DependentUpon>DoAn-DoUong.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="View\AnUong.aspx.designer.cs">
-      <DependentUpon>AnUong.aspx</DependentUpon>
+    <Compile Include="View\DoAn-DoUong.aspx.designer.cs">
+      <DependentUpon>DoAn-DoUong.aspx</DependentUpon>
     </Compile>
-    <Compile Include="View\Dashboard.aspx.cs">
-      <DependentUpon>Dashboard.aspx</DependentUpon>
+    <Compile Include="View\BanHang.aspx.cs">
+      <DependentUpon>BanHang.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="View\Dashboard.aspx.designer.cs">
-      <DependentUpon>Dashboard.aspx</DependentUpon>
+    <Compile Include="View\BanHang.aspx.designer.cs">
+      <DependentUpon>BanHang.aspx</DependentUpon>
     </Compile>
     <Compile Include="View\DoanhThu.aspx.cs">
       <DependentUpon>DoanhThu.aspx</DependentUpon>

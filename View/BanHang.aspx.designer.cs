@@ -11,7 +11,7 @@ namespace BTL.View
 {
 
 
-    public partial class Dashboard
+    public partial class BanHang
     {
 
         /// <summary>
@@ -33,6 +33,15 @@ namespace BTL.View
         protected global::System.Web.UI.WebControls.HiddenField hdnActiveTab;
 
         /// <summary>
+        /// hdnCartData control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.HiddenField hdnCartData;
+
+        /// <summary>
         /// hdnActiveCategory control.
         /// </summary>
         /// <remarks>
@@ -51,6 +60,15 @@ namespace BTL.View
         protected global::System.Web.UI.WebControls.HiddenField hdnSelectedTable;
 
         /// <summary>
+        /// hdnTargetTable control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.HiddenField hdnTargetTable;
+
+        /// <summary>
         /// hdnPaymentMethod control.
         /// </summary>
         /// <remarks>
@@ -58,6 +76,15 @@ namespace BTL.View
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.HiddenField hdnPaymentMethod;
+
+        /// <summary>
+        /// btnHiddenPostBack control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button btnHiddenPostBack;
 
         /// <summary>
         /// btnLogout control.
@@ -78,31 +105,13 @@ namespace BTL.View
         protected global::System.Web.UI.HtmlControls.HtmlGenericControl menuContainer;
 
         /// <summary>
-        /// btnAll control.
+        /// rptCategories control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnAll;
-
-        /// <summary>
-        /// btnCoffee control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnCoffee;
-
-        /// <summary>
-        /// btnTea control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnTea;
+        protected global::System.Web.UI.WebControls.Repeater rptCategories;
 
         /// <summary>
         /// productItems control.
@@ -132,31 +141,22 @@ namespace BTL.View
         protected global::System.Web.UI.HtmlControls.HtmlGenericControl floorBtnContainer;
 
         /// <summary>
-        /// btnNew control.
+        /// lblMessage control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnNew;
+        protected global::System.Web.UI.WebControls.Label lblMessage;
 
         /// <summary>
-        /// btnFloor1 control.
+        /// rptFloors control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnFloor1;
-
-        /// <summary>
-        /// btnFloor2 control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnFloor2;
+        protected global::System.Web.UI.WebControls.Repeater rptFloors;
 
         /// <summary>
         /// tableItems control.
@@ -195,15 +195,6 @@ namespace BTL.View
         protected global::System.Web.UI.WebControls.TextBox txtTablePosition;
 
         /// <summary>
-        /// txtSearch control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtSearch;
-
-        /// <summary>
         /// cartItems control.
         /// </summary>
         /// <remarks>
@@ -211,6 +202,15 @@ namespace BTL.View
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.HtmlControls.HtmlGenericControl cartItems;
+
+        /// <summary>
+        /// lblResult control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label lblResult;
 
         /// <summary>
         /// txtSubtotal control.
@@ -222,15 +222,6 @@ namespace BTL.View
         protected global::System.Web.UI.WebControls.TextBox txtSubtotal;
 
         /// <summary>
-        /// txtTax control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtTax;
-
-        /// <summary>
         /// txtTotal control.
         /// </summary>
         /// <remarks>
@@ -240,40 +231,31 @@ namespace BTL.View
         protected global::System.Web.UI.WebControls.TextBox txtTotal;
 
         /// <summary>
-        /// btnSave control.
+        /// btnSaveBill control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnSave;
+        protected global::System.Web.UI.WebControls.Button btnSaveBill;
 
         /// <summary>
-        /// btnPay control.
+        /// btnConfirmPay control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnPay;
+        protected global::System.Web.UI.WebControls.Button btnConfirmPay;
 
         /// <summary>
-        /// lblOrderId control.
+        /// lblfloor control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblOrderId;
-
-        /// <summary>
-        /// lblFloor control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblFloor;
+        protected global::System.Web.UI.WebControls.Label lblfloor;
 
         /// <summary>
         /// txtTempTotal control.
@@ -339,30 +321,30 @@ namespace BTL.View
         protected global::System.Web.UI.WebControls.TextBox txtCustomerPay;
 
         /// <summary>
-        /// txtCustomerPayment control.
+        /// btnThanhToan control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtCustomerPayment;
+        protected global::System.Web.UI.WebControls.Button btnThanhToan;
 
         /// <summary>
-        /// lblTotalAmount control.
+        /// targetTable control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblTotalAmount;
+        protected global::System.Web.UI.WebControls.DropDownList targetTable;
 
         /// <summary>
-        /// btnConfirmPay control.
+        /// btnUpdateTable control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnConfirmPay;
+        protected global::System.Web.UI.WebControls.Button btnUpdateTable;
     }
 }

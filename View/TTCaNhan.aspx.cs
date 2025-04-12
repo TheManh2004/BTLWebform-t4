@@ -1,97 +1,196 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+using System.Data.SqlClient;
 using System.Web.UI;
-using System.Web.UI.WebControls;
 
 namespace BTL.View
 {
     public partial class TTCaNhan : System.Web.UI.Page
     {
+        private string connectionString = "Server=DESKTOP-9UGDVKE\\SQLEXPRESS;Database=qlQuanCafe2;Integrated Security=True;";
+
         protected void Page_Load(object sender, EventArgs e)
         {
             if (!IsPostBack)
             {
-                // Load thông tin cá nhân từ database hoặc session
-                LoadPersonalInfo();
+                // Lấy tên đăng nhập từ session
+                string username = Session["UserName"]?.ToString();
+
+                // Nếu không có session (nghĩa là người dùng chưa đăng nhập), chuyển về trang đăng nhập
+                if (string.IsNullOrEmpty(username))
+                {
+                    Response.Redirect("homepage.aspx"); // Chuyển hướng về trang đăng nhập nếu chưa đăng nhập
+                }
+
+                // Truy vấn cơ sở dữ liệu để lấy thông tin người dùng và hiển thị
+                LoadPersonalInfo(username);
             }
         }
 
-        private void LoadPersonalInfo()
+        private void LoadPersonalInfo(string username)
         {
-            // Ví dụ giả lập dữ liệu
-            txtUsername.Text = "Nvd";
-            txtFullName.Text = "Nguyễn Văn Đạt";
-            txtPhone.Text = "0123 456 789";
-            txtEmail.Text = "nvd22082004@gmail.com";
-            txtAddress.Text = "123 Đường ABC, Quận XYZ";
+            // Truy vấn cơ sở dữ liệu để lấy thông tin người dùng từ bảng [Account]
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                string query = "SELECT UserName, Name, Phone, Address FROM [Account] WHERE UserName = @UserName";
+                SqlCommand command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@UserName", username);
+
+                connection.Open();
+                SqlDataReader reader = command.ExecuteReader();
+
+                if (reader.Read()) // Nếu tìm thấy người dùng trong cơ sở dữ liệu
+                {
+                    txtUsername.Text = reader["UserName"].ToString();
+                    txtFullName.Text = reader["Name"].ToString();
+                    txtPhone.Text = reader["Phone"].ToString();
+                    txtAddress.Text = reader["Address"].ToString();
+                }
+                else
+                {
+                    // Nếu không tìm thấy người dùng, chuyển về trang đăng nhập
+                    Response.Redirect("homepage.aspx");
+                }
+            }
         }
 
         protected void btnUpdate_Click(object sender, EventArgs e)
         {
-            // Cập nhật thông tin cá nhân vào database
             string username = txtUsername.Text;
             string fullName = txtFullName.Text;
             string phone = txtPhone.Text;
-            string email = txtEmail.Text;
             string address = txtAddress.Text;
 
-            // Thực hiện lưu vào database (giả lập ở đây)
-            // Ví dụ: UpdateUserInfo(username, fullName, phone, email, address);
-            ScriptManager.RegisterStartupScript(this, GetType(), "alert", "alert('Cập nhật thông tin thành công!');", true);
+            // Cập nhật thông tin vào cơ sở dữ liệu
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                string query = "UPDATE [Account] SET Name = @Name, Phone = @Phone, Address = @Address WHERE UserName = @UserName";
+                SqlCommand command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@UserName", username);
+                command.Parameters.AddWithValue("@Name", fullName);
+                command.Parameters.AddWithValue("@Phone", phone);
+                command.Parameters.AddWithValue("@Address", address);
+
+                connection.Open();
+                int rowsAffected = command.ExecuteNonQuery();
+
+                if (rowsAffected > 0)
+                {
+                    ScriptManager.RegisterStartupScript(this, GetType(), "alert", "alert('Cập nhật thông tin thành công!');", true);
+                }
+                else
+                {
+                    ScriptManager.RegisterStartupScript(this, GetType(), "alert", "alert('Cập nhật không thành công!');", true);
+                }
+            }
         }
 
         protected void btnSavePassword_Click(object sender, EventArgs e)
         {
-            string currentPassword = txtCurrentPassword.Text;
-            string newPassword = txtNewPassword.Text;
-            string confirmPassword = txtConfirmPassword.Text;
+            string username = Session["UserName"]?.ToString();
+            if (string.IsNullOrEmpty(username)) return;
 
-            // Kiểm tra dữ liệu
+            string currentPassword = txtCurrentPassword.Text.Trim();
+            string newPassword = txtNewPassword.Text.Trim();
+            string confirmPassword = txtConfirmPassword.Text.Trim();
+
             if (string.IsNullOrEmpty(currentPassword) || string.IsNullOrEmpty(newPassword) || string.IsNullOrEmpty(confirmPassword))
             {
-                ScriptManager.RegisterStartupScript(this, GetType(), "alert", "alert('Vui lòng điền đầy đủ các trường!');", true);
+                ScriptManager.RegisterStartupScript(this, GetType(), "alert",
+                    "alert('❗ Vui lòng điền đầy đủ thông tin!'); showModal();", true);
                 return;
             }
 
             if (newPassword != confirmPassword)
             {
-                ScriptManager.RegisterStartupScript(this, GetType(), "alert", "alert('Mật khẩu mới và xác nhận mật khẩu không khớp!');", true);
+                ScriptManager.RegisterStartupScript(this, GetType(), "alert",
+                    "alert('❗ Mật khẩu mới và xác nhận không khớp!'); showModal();", true);
                 return;
             }
 
-            // Kiểm tra mật khẩu hiện tại (giả lập, thay bằng truy vấn database)
-            string storedPassword = "123456"; // Giả lập mật khẩu hiện tại từ database
+            // Lấy tên đăng nhập từ session
+            string username = Session["UserName"]?.ToString();
+            if (string.IsNullOrEmpty(username))
+            {
+                Response.Redirect("homepage.aspx");
+                return;
+            }
+
+            string storedPassword = "";
+
+            // Kiểm tra mật khẩu hiện tại từ cơ sở dữ liệu
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                string query = "SELECT PassWord FROM [Account] WHERE UserName = @UserName";
+                SqlCommand command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@UserName", username);
+
+                connection.Open();
+                SqlDataReader reader = command.ExecuteReader();
+
+                if (reader.Read())
+                {
+                    storedPassword = reader["PassWord"].ToString();
+                }
+            }
+
+            // Kiểm tra mật khẩu hiện tại
             if (currentPassword != storedPassword)
             {
-                ScriptManager.RegisterStartupScript(this, GetType(), "alert", "alert('Mật khẩu hiện tại không đúng!');", true);
-                return;
+                string checkQuery = "SELECT PassWord FROM Account WHERE UserName = @username";
+                SqlCommand checkCmd = new SqlCommand(checkQuery, conn);
+                checkCmd.Parameters.AddWithValue("@username", username);
+
+            // Mã hóa mật khẩu mới trước khi lưu vào cơ sở dữ liệu
+            // Bạn có thể sử dụng các kỹ thuật mã hóa như SHA256 hoặc bcrypt ở đây
+
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                string query = "UPDATE [Account] SET PassWord = @NewPassword WHERE UserName = @UserName";
+                SqlCommand command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@NewPassword", newPassword);  // Chú ý: Mã hóa mật khẩu trong thực tế
+                command.Parameters.AddWithValue("@UserName", username);
+
+                connection.Open();
+                int rowsAffected = command.ExecuteNonQuery();
+
+                if (rowsAffected > 0)
+                {
+                    ScriptManager.RegisterStartupScript(this, GetType(), "alert", "alert('Đặt lại mật khẩu thành công!');", true);
+                }
+                else
+                {
+                    ScriptManager.RegisterStartupScript(this, GetType(), "alert", "alert('Đặt lại mật khẩu không thành công!');", true);
+                }
             }
 
-            // Lưu mật khẩu mới vào database (giả lập)
-            // Ví dụ: UpdatePassword(username, newPassword);
-            ScriptManager.RegisterStartupScript(this, GetType(), "alert", "alert('Đặt lại mật khẩu thành công!');", true);
+                if (storedPassword != currentPassword)
+                {
+                    ScriptManager.RegisterStartupScript(this, GetType(), "alert",
+                        "alert('❗ Mật khẩu hiện tại không đúng!'); showModal();", true);
+                    return;
+                }
 
-            // Xóa dữ liệu trong modal
+                string updateQuery = "UPDATE Account SET PassWord = @newPassword WHERE UserName = @username";
+                SqlCommand updateCmd = new SqlCommand(updateQuery, conn);
+                updateCmd.Parameters.AddWithValue("@newPassword", newPassword);
+                updateCmd.Parameters.AddWithValue("@username", username);
+                updateCmd.ExecuteNonQuery();
+            }
+
+            // Reset input
             txtCurrentPassword.Text = "";
             txtNewPassword.Text = "";
             txtConfirmPassword.Text = "";
 
-            // Ẩn modal
-            ScriptManager.RegisterStartupScript(this, GetType(), "hideModal", "hideModal();", true);
+            ScriptManager.RegisterStartupScript(this, GetType(), "alert",
+                "alert('✅ Đặt lại mật khẩu thành công!'); hideModal();", true);
         }
 
         protected void BtnLogout_Click(object sender, EventArgs e)
         {
-            // Xóa toàn bộ session
             Session.Clear();
             Session.Abandon();
-
-            // Nếu sử dụng FormsAuthentication
             System.Web.Security.FormsAuthentication.SignOut();
-
-            // Chuyển hướng về trang đăng nhập
             Response.Redirect("homepage.aspx");
         }
     }

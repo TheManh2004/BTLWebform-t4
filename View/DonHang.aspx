@@ -17,14 +17,14 @@
         <a href="tongquan.aspx">Tổng quan</a>
         <a href="SoDoBan.aspx">Sơ đồ bàn</a>
         <div class="box1">
-            <a href="AnUong.aspx">Đồ uống, món ăn</a>
+            <a href="DoAn-DoUong.aspx">Đồ uống, món ăn</a>
             <i class="fa-solid fa-caret-right rotate" id="icon" onclick="toggleSubMenu(event)"></i>
         </div>
         <div class="submenu" id="submenu">
-            <a href="ThucDon.aspx">Nhóm thực đơn</a>
-            <a href="DonViTinh.aspx">Đơn vị tính</a>
+        <a href="ThucDon.aspx">Nhóm thực đơn</a>
+        <a href="DonViTinh.aspx">Đơn vị tính</a>
         </div>
-        <a href="DoanhThu.aspx">Thông kê doanh thu</a>
+        <a href="DoanhThu.aspx">Thống kê doanh thu</a>
         <a href="DonHang.aspx">Quản lý đơn hàng</a>
         <a href="qlNV.aspx">Quản lý nhân viên</a>
         <a href="NguyenLieu.aspx">Quản Lý nguyên liệu</a>
@@ -50,23 +50,16 @@
                     <asp:ListItem Text="Đã hủy" Value="DaHuy" />
                 </asp:DropDownList>
                 <asp:Button ID="btnExport" runat="server" Text="Xuất Excel" class="btn-export" OnClick="btnExport_Click" />
-                <asp:Button ID="btnUpdate" runat="server" Text="Cập nhật" class="btn-update" OnClick="btnUpdate_Click" />
+               
             </div>
             <hr />
             <!-- GridView for Inventory -->
             <asp:GridView ID="gvInventory" runat="server" AutoGenerateColumns="False" CssClass="gridview" OnSelectedIndexChanged="gvInventory_SelectedIndexChanged">
                 <Columns>
-                    <asp:TemplateField>
-                        <ItemTemplate>
-                            <asp:CheckBox ID="chkRow" runat="server" />
-                        </ItemTemplate>
-                    </asp:TemplateField>
-                    <asp:BoundField DataField="STT" HeaderText="STT" />
                     <asp:BoundField DataField="MaHoaDon" HeaderText="Mã hóa đơn" />
                     <asp:BoundField DataField="NgayGiao" HeaderText="Ngày giao" />
                     <asp:BoundField DataField="NhanVien" HeaderText="Nhân viên" />
                     <asp:BoundField DataField="TongTien" HeaderText="Tổng tiền" />
-                    <asp:BoundField DataField="ThanhToan" HeaderText="Thanh toán" />
                     <asp:BoundField DataField="TrangThai" HeaderText="Trạng thái" />
                     <asp:BoundField DataField="GhiChu" HeaderText="Ghi chú" />
                 </Columns>

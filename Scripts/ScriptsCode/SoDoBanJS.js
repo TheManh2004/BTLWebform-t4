@@ -1,24 +1,18 @@
 ﻿document.addEventListener('DOMContentLoaded', function () {
-    // Toggle submenu in sidebar
-    function toggleSubMenu(event) {
-        var submenu = document.getElementById('submenu');
-        var icon = document.getElementById('icon');
-        submenu.style.display = submenu.style.display === 'none' || submenu.style.display === '' ? 'flex' : 'none';
-        icon.classList.toggle('rotate-down');
-    }
+    
 
     // Show Add Table Modal
     function showAddTableModal(floor) {
-        console.log("Showing table modal for floor: " + floor);
-        if (!floor) floor = "1";
-        var modal = document.getElementById('addTableModal');
-        if (modal) {
-            modal.style.display = 'flex';
-            document.getElementById('txtFloor').value = 'Tầng ' + floor;
-            document.getElementById('hdnFloor').value = floor;
-        } else {
-            console.error("Add Table Modal element not found!");
-        }
+        //console.log("Showing table modal for floor: " + floor);
+        //if (!floor) floor = "1";
+        //var modal = document.getElementById('addTableModal');
+        //if (modal) {
+        //    modal.style.display = 'flex';
+        //    document.getElementById('txtFloor').value = '' + floor;
+        //    document.getElementById('hdnFloor').value = floor;
+        //} else {
+        //    console.error("Add Table Modal element not found!");
+        //}
     }
 
     // Show Add Area Modal
@@ -52,6 +46,7 @@
     window.closeModal = closeModal;
     window.toggleSubMenu = toggleSubMenu;
 });
+
 // Kiểm tra trạng thái của submenu khi tải trang
 window.onload = function (event) {
     event.stopPropagation();
@@ -67,6 +62,16 @@ window.onload = function (event) {
         icon.classList.remove("rotate-down");
     }
 };
+function selectFloor(floorId, floorName) {
+    // Lưu giá trị idArea và tên tầng vào hidden fields
+    document.getElementById('hdnAreaId').value = floorId;
+    document.getElementById('hdnCurrentFloor').value = floorName;
+
+    // Cập nhật giao diện (hiển thị nút tầng đã chọn)
+    let buttons = document.querySelectorAll('.btn-floor');
+    buttons.forEach(btn => btn.classList.remove('active'));
+    event.target.classList.add('active');
+}
 
 // Hàm mở/đóng submenu và lưu trạng thái vào localStorage
 function toggleSubMenu() {

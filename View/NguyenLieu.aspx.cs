@@ -8,8 +8,8 @@ namespace BTL.View
 {
     public partial class Hang : Page
     {
-        // Chuỗi kết nối đến SQL Server
-        private string connectionString = "Server=Manh\\SQLEXPRESS;Database=qlQuanCafe;User Id=sa;Password=123";
+        private string connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["MyConnectionString"].ToString();
+
 
         protected void Page_Load(object sender, EventArgs e)
         {

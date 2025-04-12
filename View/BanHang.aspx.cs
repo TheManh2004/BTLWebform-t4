@@ -16,7 +16,7 @@ namespace BTL.View
 {
     public partial class BanHang : System.Web.UI.Page
     {
-        private string connectionString = "Server=Manh\\SQLEXPRESS;Database=qlQuanCafe;User Id=sa;Password=123";
+        private string connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["MyConnectionString"].ToString();
 
         protected void Page_Load(object sender, EventArgs e)
         {
@@ -250,12 +250,13 @@ namespace BTL.View
                 }
             }
         }
-  
+
         [WebMethod]
         public static string SaveBill(string cartData, string selectedTable)
         {
-            string connectionString = "Data Source=ADMIN\\SQLEXPRESS;Initial Catalog=qlQuanCafe;Integrated Security=True";
+            string connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["MyConnectionString"].ToString();
 
+            // Kiểm tra giá trị của selectedTable và cartData
             if (string.IsNullOrEmpty(selectedTable) || !int.TryParse(selectedTable, out int tableId))
             {
                 return "❌ Lỗi: ID bàn không hợp lệ!";
@@ -283,10 +284,21 @@ namespace BTL.View
                             return "❌ Lỗi: Giỏ hàng trống!";
                         }
 
+                        // ✅ Lấy idAccount từ session hoặc cookie
+                        int userAccountId = 2; // Giả sử bạn lấy từ session hoặc cookie, có thể thay thế tùy theo ứng dụng thực tế
+
+                        // ✅ Kiểm tra quyền của tài khoản
+                        if (userAccountId != 2) // Ví dụ chỉ tài khoản có id = 2 mới được phép lưu hóa đơn
+                        {
+                            transaction.Rollback();
+                            return "❌ Lỗi: Tài khoản không có quyền lưu hóa đơn!";
+                        }
+
                         // ✅ Thêm hóa đơn mới
-                        string insertBillQuery = "INSERT INTO Bill (Date, idTable, idAccount, status) OUTPUT INSERTED.Bill_id VALUES (GETDATE(), @TableID, 1, 1)";
+                        string insertBillQuery = "INSERT INTO Bill (Date, idTable, idAccount, status) OUTPUT INSERTED.Bill_id VALUES (GETDATE(), @TableID, @AccountID, 1)";
                         SqlCommand cmdBill = new SqlCommand(insertBillQuery, conn, transaction);
                         cmdBill.Parameters.AddWithValue("@TableID", tableId);
+                        cmdBill.Parameters.AddWithValue("@AccountID", userAccountId); // Dùng idAccount được xác minh
                         object result = cmdBill.ExecuteScalar();
 
                         if (result == null || result == DBNull.Value)
@@ -322,7 +334,6 @@ namespace BTL.View
 
                         transaction.Commit();
                         return "✅ Lưu hóa đơn thành công!";
-                        
                     }
                     catch (Exception ex)
                     {
@@ -335,8 +346,8 @@ namespace BTL.View
             {
                 return "❌ Lỗi kết nối CSDL: " + ex.Message;
             }
-
         }
+
         protected void btnSaveBill_Click(object sender, EventArgs e)
         {
             string cartData = hdnCartData.Value.Trim();
@@ -369,7 +380,7 @@ namespace BTL.View
 
         public int FindBillByTableId(int tableId)
         {
-            string connectionString = "Data Source=ADMIN\\SQLEXPRESS;Initial Catalog=qlQuanCafe;Integrated Security=True";
+             string connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["MyConnectionString"].ToString();
 
             try
             {
@@ -405,7 +416,7 @@ namespace BTL.View
         [WebMethod]
         public string UpdateBillTable(int billId, int tableId)
         {
-            string connectionString = "Data Source=ADMIN\\SQLEXPRESS;Initial Catalog=qlQuanCafe;Integrated Security=True";
+            string connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["MyConnectionString"].ToString();
 
             try
             {

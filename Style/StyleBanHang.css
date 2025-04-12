@@ -681,6 +681,7 @@ body {
 
 #paymentModal .modal-content {
     background: linear-gradient(145deg, #FFF8DC, #F5E8C7);
+    margin: 7rem auto;
     padding: 40px;
     border-radius: 16px;
     max-width: 1200px;

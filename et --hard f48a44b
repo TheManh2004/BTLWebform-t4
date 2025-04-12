@@ -1,0 +1,24 @@
+[33md9efaaa[m[33m ([m[1;36mHEAD -> [m[1;32mthemanhdev[m[33m)[m HEAD@{0}: commit (merge): da
+[33mfa1b14d[m[33m ([m[1;31morigin/themanhdev[m[33m)[m HEAD@{1}: commit: push
+[33m3222d5b[m HEAD@{2}: commit (merge): đấ
+[33m1d54e7e[m HEAD@{3}: commit: dsada
+[33mf48a44b[m HEAD@{4}: pull origin main: Fast-forward
+[33m41015b0[m HEAD@{5}: commit: Enhance employee management with database integration
+[33m5c36214[m HEAD@{6}: pull origin main: Fast-forward
+[33m972d9f1[m HEAD@{7}: commit: update
+[33m5718f49[m HEAD@{8}: commit (merge): update
+[33m5606dbb[m HEAD@{9}: commit: update href
+[33ma6c797e[m HEAD@{10}: checkout: moving from main to themanhdev
+[33mb7282e7[m[33m ([m[1;32mmain[m[33m)[m HEAD@{11}: checkout: moving from themanhdev to main
+[33ma6c797e[m HEAD@{12}: checkout: moving from main to themanhdev
+[33mb7282e7[m[33m ([m[1;32mmain[m[33m)[m HEAD@{13}: pull origin main: Fast-forward
+[33m8afc174[m[33m ([m[1;31morigin/master[m[33m)[m HEAD@{14}: checkout: moving from themanhdev to main
+[33ma6c797e[m HEAD@{15}: pull origin main: Merge made by the 'ort' strategy.
+[33mabb9b97[m HEAD@{16}: pull origin main: Merge made by the 'ort' strategy.
+[33ma257904[m HEAD@{17}: commit: update
+[33m33ea83a[m HEAD@{18}: pull origin main: Fast-forward
+[33m449558c[m HEAD@{19}: commit: test
+[33m8afc174[m[33m ([m[1;31morigin/master[m[33m)[m HEAD@{20}: checkout: moving from main to themanhdev
+[33m8afc174[m[33m ([m[1;31morigin/master[m[33m)[m HEAD@{21}: Branch: renamed refs/heads/master to refs/heads/main
+[33m8afc174[m[33m ([m[1;31morigin/master[m[33m)[m HEAD@{23}: commit: Add project files.
+[33m0e80c21[m HEAD@{24}: commit (initial): Add .gitattributes and .gitignore.

@@ -8,8 +8,8 @@ namespace BTL.View
     public partial class tongquan : System.Web.UI.Page
     {
         // Chuỗi kết nối đến cơ sở dữ liệu
-        private string connectionString = @"Data Source=LAPTOP-C5PBB5S7;Initial Catalog=qlQuanCafe;Integrated Security=True";
-        
+        private string connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["MyConnectionString"].ToString();
+
 
 
         protected void Page_Load(object sender, EventArgs e)

@@ -55,13 +55,16 @@
                         <asp:ListItem Text="Ngừng hoạt động" Value="inactive" />
                     </asp:DropDownList>
                 </div>
-                 <div class="content-down">
-                    <asp:TextBox ID="txtPrice" runat="server" placeholder="Giá" style="width: 400px"/>
-                    <asp:DropDownList ID="ddlUnit" runat="server" style="width: 300px">
-                        <asp:ListItem Text="Đơn vị tính" Value="unit" />
-                        
-                    </asp:DropDownList>
-                </div>
+                <div class="content-down">
+    <asp:TextBox ID="txtPrice" runat="server" placeholder="Giá" style="width: 400px"/>
+    <asp:DropDownList ID="ddlUnit" runat="server" style="width: 300px">
+        <asp:ListItem Text="Đơn vị tính" Value="unit" />
+    </asp:DropDownList>
+    <!-- Thêm FileUpload để upload ảnh -->
+    <asp:FileUpload ID="fileUploadImage" runat="server" style="width: 95px" />
+    <!-- (Tuỳ chọn) Hiển thị ảnh đã upload để xem trước -->
+    <asp:Image ID="imgPreview" runat="server" style="max-width: 100px; max-height: 100px; display: none;" />
+</div>
                 <asp:Button ID="btnCreate" class="btnCreate" runat="server" Text="+ Tạo mới" style="width: 200px; height: 40px" OnClick="btnCreate_Click" />
             </div>
         </div>
@@ -76,24 +79,24 @@
                 <asp:Button ID="btnSearch" class="btnSearch" runat="server" Text="Tìm kiếm" OnClick="btnSearch_Click" />
             </div>
             <asp:GridView ID="GridView1" runat="server" AutoGenerateColumns="False" 
-                OnRowEditing="GridView1_RowEditing" 
-                OnRowUpdating="GridView1_RowUpdating" 
-                OnRowDeleting="GridView1_RowDeleting" 
-                OnRowCancelingEdit="GridView1_RowCancelingEdit" 
-                DataKeyNames="Food_id" 
-                CssClass="table" 
-                CellPadding="4" BorderColor="#CCCCCC" BorderStyle="Solid" BorderWidth="1px">
-                <Columns>
-            <asp:BoundField DataField="Food_id" HeaderText="STT" SortExpression="Food_id" />
+    OnRowEditing="GridView1_RowEditing" 
+    OnRowUpdating="GridView1_RowUpdating" 
+    OnRowDeleting="GridView1_RowDeleting" 
+    OnRowCancelingEdit="GridView1_RowCancelingEdit" 
+    DataKeyNames="Food_id" 
+    CssClass="table" 
+    CellPadding="4" BorderColor="#CCCCCC" BorderStyle="Solid" BorderWidth="1px">
+    <Columns>
+        <asp:BoundField DataField="Food_id" HeaderText="STT" SortExpression="Food_id" />
         
-            <asp:TemplateField HeaderText="Tên Món">
-                <EditItemTemplate>
-                    <asp:TextBox ID="txtEditFoodCategoryName" runat="server" Text='<%# Bind("Food_name") %>' />
-                </EditItemTemplate>
-                <ItemTemplate>
-                    <asp:Label ID="lblFoodCategoryName" runat="server" Text='<%# Bind("Food_name") %>' />
-                </ItemTemplate>
-            </asp:TemplateField>
+        <asp:TemplateField HeaderText="Tên Món">
+            <EditItemTemplate>
+                <asp:TextBox ID="txtEditFoodCategoryName" runat="server" Text='<%# Bind("Food_name") %>' />
+            </EditItemTemplate>
+            <ItemTemplate>
+                <asp:Label ID="lblFoodCategoryName" runat="server" Text='<%# Bind("Food_name") %>' />
+            </ItemTemplate>
+        </asp:TemplateField>
 
         <asp:TemplateField HeaderText="Giá">
             <EditItemTemplate>
@@ -115,9 +118,17 @@
                 <asp:Label ID="lblStatus" runat="server" Text='<%# Bind("TrangThai") %>' />
             </ItemTemplate>
         </asp:TemplateField>
+
         <asp:BoundField DataField="DanhMuc" HeaderText="Danh Mục" SortExpression="DanhMuc" />
         <asp:BoundField DataField="DVT" HeaderText="Đơn Vị Tính" SortExpression="DVT" />
-        
+        <asp:TemplateField HeaderText="Ảnh">
+            <ItemTemplate>
+                <asp:Image ID="imgFood" runat="server" ImageUrl='<%# Eval("ImagePath") %>' 
+                    style="max-width: 50px; max-height: 50px;" 
+                    AlternateText="Không có ảnh" />
+            </ItemTemplate>
+        </asp:TemplateField>
+
         <asp:CommandField ShowEditButton="True" ShowDeleteButton="True" />
     </Columns>
 </asp:GridView>

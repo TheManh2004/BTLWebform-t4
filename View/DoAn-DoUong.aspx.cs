@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Data;
 using System.Data.SqlClient;
+using System.Linq;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 
@@ -14,14 +15,12 @@ namespace BTL.View
         {
             if (!IsPostBack)
             {
-                // Load data for both dropdown lists
-                LoadUnitData(); // Load data into ddlUnit for Unit
-                LoadCategoryData(); // Load data into ddlCategory for Category
-                LoadGridViewData(); // Load the grid with data when the page loads
+                LoadUnitData();
+                LoadCategoryData();
+                LoadGridViewData();
             }
         }
 
-        // Method to load DVT data into ddlUnit
         private void LoadUnitData()
         {
             using (SqlConnection conn = new SqlConnection(connectionString))
@@ -31,16 +30,13 @@ namespace BTL.View
                 conn.Open();
                 SqlDataReader reader = cmd.ExecuteReader();
                 ddlUnit.DataSource = reader;
-                ddlUnit.DataTextField = "DVT_Name"; // Display DVT Name
-                ddlUnit.DataValueField = "DVT_id"; // Value for selection
+                ddlUnit.DataTextField = "DVT_Name";
+                ddlUnit.DataValueField = "DVT_id";
                 ddlUnit.DataBind();
             }
-
-            // Add default item to dropdown
             ddlUnit.Items.Insert(0, new ListItem("Chọn đơn vị tính", "0"));
         }
 
-        // Method to load FoodCategory data into ddlCategory
         private void LoadCategoryData()
         {
             using (SqlConnection conn = new SqlConnection(connectionString))
@@ -50,42 +46,90 @@ namespace BTL.View
                 conn.Open();
                 SqlDataReader reader = cmd.ExecuteReader();
                 ddlCategory.DataSource = reader;
-                ddlCategory.DataTextField = "FoodCategory_name"; // Display Food Category Name
-                ddlCategory.DataValueField = "FoodCategory_id"; // Value for selection
+                ddlCategory.DataTextField = "FoodCategory_name";
+                ddlCategory.DataValueField = "FoodCategory_id";
                 ddlCategory.DataBind();
             }
-
-            // Add default item to dropdown
             ddlCategory.Items.Insert(0, new ListItem("Chọn danh mục", "0"));
         }
 
         protected void btnCreate_Click(object sender, EventArgs e)
         {
             string foodName = txtDishName.Text.Trim();
-
-            // Lấy FoodCategory_id và DVT_id từ dropdown
-            int categoryId = Convert.ToInt32(ddlCategory.SelectedValue); // Lấy FoodCategory_id
-            int unitId = Convert.ToInt32(ddlUnit.SelectedValue);  // Lấy DVT_id
-
-            // Chuyển đổi trạng thái thành số (1 cho "active" và 0 cho "inactive")
-            int status = ddlStatus.SelectedValue == "active" ? 1 : 0;
-
-            // Kiểm tra giá trị price
+            int categoryId = Convert.ToInt32(ddlCategory.SelectedValue);
+            int unitId = Convert.ToInt32(ddlUnit.SelectedValue);
+            string statusValue = ddlStatus.SelectedValue;
             decimal price;
-            decimal.TryParse(txtPrice.Text.Trim(), out price); // Đảm bảo giá trị hợp lệ
+            decimal.TryParse(txtPrice.Text.Trim(), out price);
 
-            // Đảm bảo các trường đã được điền đầy đủ
-            if (string.IsNullOrEmpty(foodName) || categoryId == 0 || unitId == 0 || price <= 0)
+            // Kiểm tra các trường bắt buộc
+            if (string.IsNullOrEmpty(foodName))
             {
-                Response.Write("<script>alert('Vui lòng điền đầy đủ thông tin!');</script>");
+                Response.Write("<script>alert('Vui lòng nhập tên món!');</script>");
+                return;
+            }
+            if (categoryId == 0)
+            {
+                Response.Write("<script>alert('Vui lòng chọn danh mục!');</script>");
+                return;
+            }
+            if (unitId == 0)
+            {
+                Response.Write("<script>alert('Vui lòng chọn đơn vị tính!');</script>");
+                return;
+            }
+            if (statusValue == "0")
+            {
+                Response.Write("<script>alert('Vui lòng chọn trạng thái!');</script>");
+                return;
+            }
+            if (price <= 0)
+            {
+                Response.Write("<script>alert('Vui lòng nhập giá hợp lệ!');</script>");
+                return;
+            }
+            if (!fileUploadImage.HasFile)
+            {
+                Response.Write("<script>alert('Vui lòng upload ảnh món ăn!');</script>");
+                return;
+            }
+
+            int status = statusValue == "active" ? 1 : 0;
+
+            // Xử lý upload ảnh (bắt buộc)
+            string imagePath = null;
+            try
+            {
+                string fileExtension = System.IO.Path.GetExtension(fileUploadImage.FileName).ToLower();
+                string[] allowedExtensions = { ".jpg", ".jpeg", ".png", ".gif" };
+                if (!allowedExtensions.Contains(fileExtension))
+                {
+                    Response.Write("<script>alert('Vui lòng chọn file ảnh (jpg, jpeg, png, gif)!');</script>");
+                    return;
+                }
+
+                string uploadFolder = Server.MapPath("~/Images/Food/");
+                if (!System.IO.Directory.Exists(uploadFolder))
+                {
+                    System.IO.Directory.CreateDirectory(uploadFolder);
+                }
+
+                string fileName = Guid.NewGuid().ToString() + fileExtension;
+                string fullPath = System.IO.Path.Combine(uploadFolder, fileName);
+                fileUploadImage.SaveAs(fullPath);
+                imagePath = "~/Images/Food/" + fileName;
+            }
+            catch (Exception ex)
+            {
+                Response.Write("<script>alert('Lỗi khi upload ảnh: " + ex.Message + "');</script>");
                 return;
             }
 
             // Thêm món ăn mới vào cơ sở dữ liệu
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
-                string query = "INSERT INTO [qlQuanCafe].[dbo].[Food] (Food_name, idCategory, price, idDVT, status) " +
-                               "VALUES (@FoodName, @CategoryId, @Price, @UnitId, @Status)";
+                string query = "INSERT INTO [qlQuanCafe].[dbo].[Food] (Food_name, idCategory, price, idDVT, status, img) " +
+                               "VALUES (@FoodName, @CategoryId, @Price, @UnitId, @Status, @ImagePath)";
 
                 SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@FoodName", foodName);
@@ -93,13 +137,23 @@ namespace BTL.View
                 cmd.Parameters.AddWithValue("@Price", price);
                 cmd.Parameters.AddWithValue("@UnitId", unitId);
                 cmd.Parameters.AddWithValue("@Status", status);
+                cmd.Parameters.AddWithValue("@ImagePath", imagePath);
 
                 try
                 {
                     conn.Open();
                     cmd.ExecuteNonQuery();
-                    LoadGridViewData();  // Tải lại dữ liệu trong GridView sau khi thêm
+                    LoadGridViewData();
                     Response.Write("<script>alert('Thêm món ăn thành công!');</script>");
+
+                    // Reset form
+                    txtDishName.Text = "";
+                    txtPrice.Text = "";
+                    ddlCategory.SelectedIndex = 0;
+                    ddlUnit.SelectedIndex = 0;
+                    ddlStatus.SelectedIndex = 0;
+                    imgPreview.ImageUrl = "";
+                    imgPreview.Style["display"] = "none";
                 }
                 catch (Exception ex)
                 {
@@ -115,7 +169,16 @@ namespace BTL.View
                 string query = @"SELECT f.Food_id, f.Food_name, 
                         (SELECT FoodCategory_name FROM FoodCategory WHERE FoodCategory_id = f.idCategory) AS DanhMuc,
                         (SELECT DVT_Name FROM DVT WHERE DVT_id = f.idDVT) AS DVT,
+<<<<<<< HEAD
+                        f.price AS Gia, 
+                        CASE f.status 
+                            WHEN 1 THEN 'Hoạt động' 
+                            ELSE 'Ngừng hoạt động' 
+                        END AS TrangThai,
+                        f.img AS ImagePath
+=======
                         f.price AS Gia, f.status AS TrangThai
+>>>>>>> fa1b14d317d3aaa827398406394c3a53261b4331
                      FROM [qlQuanCafe].[dbo].[Food] f";
 
                 SqlDataAdapter da = new SqlDataAdapter(query, conn);
@@ -135,26 +198,31 @@ namespace BTL.View
             }
         }
 
-
-
-
-        // Tìm kiếm món ăn
         protected void btnSearch_Click(object sender, EventArgs e)
         {
             string searchKeyword = txtSearch.Text.Trim();
 
             if (string.IsNullOrEmpty(searchKeyword))
             {
-                LoadGridViewData(); // Reload all data if no search term
+                LoadGridViewData();
             }
             else
             {
                 using (SqlConnection conn = new SqlConnection(connectionString))
                 {
-                    string query = @"SELECT f.Food_id AS STT, f.Food_name AS TenDo, 
+                    string query = @"SELECT f.Food_id, f.Food_name, 
                             (SELECT FoodCategory_name FROM FoodCategory WHERE FoodCategory_id = f.idCategory) AS DanhMuc,
                             (SELECT DVT_Name FROM DVT WHERE DVT_id = f.idDVT) AS DVT,
+<<<<<<< HEAD
+                            f.price AS Gia, 
+                            CASE f.status 
+                                WHEN 1 THEN 'Hoạt động' 
+                                ELSE 'Ngừng hoạt động' 
+                            END AS TrangThai,
+                            f.img AS ImagePath
+=======
                             f.price AS Gia, f.status AS TrangThai
+>>>>>>> fa1b14d317d3aaa827398406394c3a53261b4331
                          FROM [qlQuanCafe].[dbo].[Food] f
                          WHERE f.Food_name LIKE @SearchKeyword";
 
@@ -179,107 +247,174 @@ namespace BTL.View
             }
         }
 
-
-        // Chỉnh sửa món ăn
         protected void GridView1_RowEditing(object sender, GridViewEditEventArgs e)
         {
-            // Đặt GridView vào chế độ chỉnh sửa cho dòng được chọn
             GridView1.EditIndex = e.NewEditIndex;
+            LoadGridViewData();
 
-            // Tải lại dữ liệu GridView
-            LoadGridViewData(); // Giả sử LoadGridViewData() là hàm bạn dùng để tải dữ liệu từ cơ sở dữ liệu
+            // Đặt giá trị mặc định cho DropDownList trạng thái khi chỉnh sửa
+            DropDownList ddlEditStatus = GridView1.Rows[e.NewEditIndex].FindControl("ddlEditStatus") as DropDownList;
+            if (ddlEditStatus != null)
+            {
+                string statusText = (GridView1.Rows[e.NewEditIndex].FindControl("lblStatus") as Label)?.Text;
+                if (statusText == "Hoạt động")
+                    ddlEditStatus.SelectedValue = "active";
+                else if (statusText == "Ngừng hoạt động")
+                    ddlEditStatus.SelectedValue = "inactive";
+            }
         }
-
 
         protected void GridView1_RowUpdating(object sender, GridViewUpdateEventArgs e)
         {
-            // Lấy Food_id cho món ăn được chỉnh sửa
             int foodId = Convert.ToInt32(GridView1.DataKeys[e.RowIndex].Value);
- 
-            // Lấy giá trị từ các điều khiển trong dòng chỉnh sửa
+
             TextBox txtFoodName = GridView1.Rows[e.RowIndex].FindControl("txtEditFoodCategoryName") as TextBox;
             TextBox txtPrice = GridView1.Rows[e.RowIndex].FindControl("txtEditPrice") as TextBox;
             DropDownList ddlEditStatus = GridView1.Rows[e.RowIndex].FindControl("ddlEditStatus") as DropDownList;
 
             if (txtFoodName != null && txtPrice != null && ddlEditStatus != null)
             {
-                // Lấy các giá trị chỉnh sửa
                 string updatedFoodName = txtFoodName.Text;
-                decimal updatedPrice = Convert.ToDecimal(txtPrice.Text);
+                decimal updatedPrice;
+                if (!decimal.TryParse(txtPrice.Text, out updatedPrice) || updatedPrice <= 0)
+                {
+                    Response.Write("<script>alert('Vui lòng nhập giá hợp lệ!');</script>");
+                    return;
+                }
                 int updatedStatus = ddlEditStatus.SelectedValue == "active" ? 1 : 0;
 
-                // Cập nhật vào cơ sở dữ liệu
+                string imagePath = null;
+                if (fileUploadImage.HasFile)
+                {
+                    try
+                    {
+                        string fileExtension = System.IO.Path.GetExtension(fileUploadImage.FileName).ToLower();
+                        string[] allowedExtensions = { ".jpg", ".jpeg", ".png", ".gif" };
+                        if (!allowedExtensions.Contains(fileExtension))
+                        {
+                            Response.Write("<script>alert('Vui lòng chọn file ảnh (jpg, jpeg, png, gif)!');</script>");
+                            return;
+                        }
+
+                        string uploadFolder = Server.MapPath("~/Images/Food/");
+                        if (!System.IO.Directory.Exists(uploadFolder))
+                        {
+                            System.IO.Directory.CreateDirectory(uploadFolder);
+                        }
+
+                        string fileName = Guid.NewGuid().ToString() + fileExtension;
+                        string fullPath = System.IO.Path.Combine(uploadFolder, fileName);
+                        fileUploadImage.SaveAs(fullPath);
+                        imagePath = "~/Images/Food/" + fileName;
+
+                        // Xóa ảnh cũ nếu có
+                        string oldImagePath = null;
+                        using (SqlConnection conn = new SqlConnection(connectionString))
+                        {
+                            string query = "SELECT img FROM [qlQuanCafe].[dbo].[Food] WHERE Food_id = @FoodId";
+                            SqlCommand cmd = new SqlCommand(query, conn);
+                            cmd.Parameters.AddWithValue("@FoodId", foodId);
+                            conn.Open();
+                            oldImagePath = cmd.ExecuteScalar() as string;
+                        }
+                        if (!string.IsNullOrEmpty(oldImagePath))
+                        {
+                            string fullOldPath = Server.MapPath(oldImagePath);
+                            if (System.IO.File.Exists(fullOldPath))
+                            {
+                                System.IO.File.Delete(fullOldPath);
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Response.Write("<script>alert('Lỗi khi upload ảnh: " + ex.Message + "');</script>");
+                        return;
+                    }
+                }
+
                 using (SqlConnection conn = new SqlConnection(connectionString))
                 {
-                    string query = @"UPDATE [qlQuanCafe].[dbo].[Food] 
-                            SET Food_name = @FoodName, price = @Price, status = @Status 
-                            WHERE Food_id = @FoodId";
+                    string query;
+                    if (imagePath != null)
+                    {
+                        query = @"UPDATE [qlQuanCafe].[dbo].[Food] 
+                                  SET Food_name = @FoodName, price = @Price, status = @Status, img = @ImagePath 
+                                  WHERE Food_id = @FoodId";
+                    }
+                    else
+                    {
+                        query = @"UPDATE [qlQuanCafe].[dbo].[Food] 
+                                  SET Food_name = @FoodName, price = @Price, status = @Status 
+                                  WHERE Food_id = @FoodId";
+                    }
+
                     SqlCommand cmd = new SqlCommand(query, conn);
                     cmd.Parameters.AddWithValue("@FoodId", foodId);
                     cmd.Parameters.AddWithValue("@FoodName", updatedFoodName);
                     cmd.Parameters.AddWithValue("@Price", updatedPrice);
                     cmd.Parameters.AddWithValue("@Status", updatedStatus);
+                    if (imagePath != null)
+                    {
+                        cmd.Parameters.AddWithValue("@ImagePath", imagePath);
+                    }
 
                     conn.Open();
                     cmd.ExecuteNonQuery();
                 }
 
-                // Thoát khỏi chế độ chỉnh sửa và tải lại dữ liệu
                 GridView1.EditIndex = -1;
                 LoadGridViewData();
-               
-            }
-            else
-            {
-                // Xử lý khi một trong các điều khiển không được tìm thấy
-                // Thông báo lỗi hoặc xử lý tùy ý
             }
         }
 
-
-
-        // Xóa món ăn
         protected void GridView1_RowDeleting(object sender, GridViewDeleteEventArgs e)
         {
-            // Get Food_id of the item to be deleted
             int foodId = Convert.ToInt32(GridView1.DataKeys[e.RowIndex].Value);
+
+            string imagePath = null;
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                string query = "SELECT img FROM [qlQuanCafe].[dbo].[Food] WHERE Food_id = @FoodId";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@FoodId", foodId);
+                conn.Open();
+                imagePath = cmd.ExecuteScalar() as string;
+            }
 
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
                 string query = "DELETE FROM [qlQuanCafe].[dbo].[Food] WHERE Food_id = @FoodId";
                 SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@FoodId", foodId);
-
                 conn.Open();
                 cmd.ExecuteNonQuery();
             }
 
-            // Reload the grid data after deletion
+            if (!string.IsNullOrEmpty(imagePath))
+            {
+                string fullPath = Server.MapPath(imagePath);
+                if (System.IO.File.Exists(fullPath))
+                {
+                    System.IO.File.Delete(fullPath);
+                }
+            }
+
             LoadGridViewData();
         }
 
-
         protected void BtnLogout_Click(object sender, EventArgs e)
         {
-            // Xóa toàn bộ session
             Session.Clear();
             Session.Abandon();
-
-            // Nếu sử dụng FormsAuthentication
             System.Web.Security.FormsAuthentication.SignOut();
-
-            // Chuyển hướng về trang đăng nhập
             Response.Redirect("homepage.aspx");
         }
 
         protected void GridView1_RowCancelingEdit(object sender, GridViewCancelEditEventArgs e)
         {
-            // Huỷ bỏ chỉnh sửa và thoát khỏi chế độ chỉnh sửa
             GridView1.EditIndex = -1;
-
-            // Tải lại dữ liệu
             LoadGridViewData();
         }
-
     }
 }

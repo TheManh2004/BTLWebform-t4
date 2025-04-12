@@ -6,7 +6,7 @@ namespace BTL.View
 {
     public partial class TTCaNhan : System.Web.UI.Page
     {
-        private string connectionString = "Server=Manh\\SQLEXPRESS;Database=qlQuanCafe;User Id=sa;Password=123";
+        private string connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["MyConnectionString"].ToString();
         private SqlConnection conn;
 
         protected void Page_Load(object sender, EventArgs e)

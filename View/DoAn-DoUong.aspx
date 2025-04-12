@@ -11,7 +11,6 @@
 </head>
 <body>
     <form id="form1" runat="server" style="display: flex; ">
-    <!-- Sidebar -->
     <div class="sidebar">
         <h2>MENU</h2>
         <a href="BanHang.aspx">Bán hàng</a>

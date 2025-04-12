@@ -8,7 +8,7 @@ namespace BTL.View
 {
     public partial class DonViTinh : System.Web.UI.Page
     {
-        private string connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["DbConnection"].ToString();
+        private string connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["MyConnectionString"].ToString();
 
         protected void Page_Load(object sender, EventArgs e)
         {
@@ -23,7 +23,7 @@ namespace BTL.View
         {
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
-                string query = "SELECT [DVT_id], [DVT_name], [Description], [status] FROM [qlQuanCafe2].[dbo].[DVT]";
+                string query = "SELECT [DVT_id], [DVT_name], [Description], [status] FROM [qlQuanCafe].[dbo].[DVT]";
                 SqlDataAdapter da = new SqlDataAdapter(query, conn);
                 DataTable dt = new DataTable();
                 da.Fill(dt);

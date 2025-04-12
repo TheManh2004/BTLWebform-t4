@@ -9,7 +9,7 @@ namespace BTL.View
     public partial class Hang : Page
     {
         // Chuỗi kết nối đến SQL Server
-        private string connectionString = "Data Source=ADMIN\\SQLEXPRESS;Initial Catalog=qlQuanCafe;Integrated Security=True";
+        private string connectionString = "Server=Manh\\SQLEXPRESS;Database=qlQuanCafe;User Id=sa;Password=123";
 
         protected void Page_Load(object sender, EventArgs e)
         {

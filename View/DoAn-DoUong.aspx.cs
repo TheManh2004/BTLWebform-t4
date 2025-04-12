@@ -8,7 +8,7 @@ namespace BTL.View
 {
     public partial class AnUong : System.Web.UI.Page
     {
-        private string connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["DbConnection"].ToString();
+        private string connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["MyConnectionString"].ToString();
 
         protected void Page_Load(object sender, EventArgs e)
         {
@@ -26,7 +26,7 @@ namespace BTL.View
         {
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
-                string query = "SELECT [DVT_id], [DVT_Name] FROM [qlQuanCafe2].[dbo].[DVT]";
+                string query = "SELECT [DVT_id], [DVT_Name] FROM [qlQuanCafe].[dbo].[DVT]";
                 SqlCommand cmd = new SqlCommand(query, conn);
                 conn.Open();
                 SqlDataReader reader = cmd.ExecuteReader();
@@ -45,7 +45,7 @@ namespace BTL.View
         {
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
-                string query = "SELECT [FoodCategory_id], [FoodCategory_name] FROM [qlQuanCafe2].[dbo].[FoodCategory]";
+                string query = "SELECT [FoodCategory_id], [FoodCategory_name] FROM [qlQuanCafe].[dbo].[FoodCategory]";
                 SqlCommand cmd = new SqlCommand(query, conn);
                 conn.Open();
                 SqlDataReader reader = cmd.ExecuteReader();
@@ -84,7 +84,7 @@ namespace BTL.View
             // Thêm món ăn mới vào cơ sở dữ liệu
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
-                string query = "INSERT INTO [qlQuanCafe2].[dbo].[Food] (Food_name, idCategory, price, idDVT, status) " +
+                string query = "INSERT INTO [qlQuanCafe].[dbo].[Food] (Food_name, idCategory, price, idDVT, status) " +
                                "VALUES (@FoodName, @CategoryId, @Price, @UnitId, @Status)";
 
                 SqlCommand cmd = new SqlCommand(query, conn);
@@ -116,7 +116,7 @@ namespace BTL.View
                         (SELECT FoodCategory_name FROM FoodCategory WHERE FoodCategory_id = f.idCategory) AS DanhMuc,
                         (SELECT DVT_Name FROM DVT WHERE DVT_id = f.idDVT) AS DVT,
                         f.price AS Gia, f.status AS TrangThai
-                     FROM [qlQuanCafe2].[dbo].[Food] f";
+                     FROM [qlQuanCafe].[dbo].[Food] f";
 
                 SqlDataAdapter da = new SqlDataAdapter(query, conn);
                 DataTable dt = new DataTable();
@@ -155,7 +155,7 @@ namespace BTL.View
                             (SELECT FoodCategory_name FROM FoodCategory WHERE FoodCategory_id = f.idCategory) AS DanhMuc,
                             (SELECT DVT_Name FROM DVT WHERE DVT_id = f.idDVT) AS DVT,
                             f.price AS Gia, f.status AS TrangThai
-                         FROM [qlQuanCafe2].[dbo].[Food] f
+                         FROM [qlQuanCafe].[dbo].[Food] f
                          WHERE f.Food_name LIKE @SearchKeyword";
 
                     SqlCommand cmd = new SqlCommand(query, conn);
@@ -211,7 +211,7 @@ namespace BTL.View
                 // Cập nhật vào cơ sở dữ liệu
                 using (SqlConnection conn = new SqlConnection(connectionString))
                 {
-                    string query = @"UPDATE [qlQuanCafe2].[dbo].[Food] 
+                    string query = @"UPDATE [qlQuanCafe].[dbo].[Food] 
                             SET Food_name = @FoodName, price = @Price, status = @Status 
                             WHERE Food_id = @FoodId";
                     SqlCommand cmd = new SqlCommand(query, conn);
@@ -246,7 +246,7 @@ namespace BTL.View
 
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
-                string query = "DELETE FROM [qlQuanCafe2].[dbo].[Food] WHERE Food_id = @FoodId";
+                string query = "DELETE FROM [qlQuanCafe].[dbo].[Food] WHERE Food_id = @FoodId";
                 SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@FoodId", foodId);
 

@@ -11,7 +11,7 @@ namespace BTL.View
     public partial class SoDoBan : Page
     {
         private Dictionary<string, List<string>> tablesByFloor;
-        private string connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["DbConnection"].ToString();
+        private string connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["MyConnectionString"].ToString();
 
         protected void Page_Load(object sender, EventArgs e)
         {
@@ -37,7 +37,7 @@ namespace BTL.View
         // Load floor buttons dynamically
         private void LoadFloorButtons()
         {
-            string query = "SELECT Area_id, AreaName FROM [qlQuanCafe2].[dbo].[Area]"; // Câu lệnh SQL để lấy dữ liệu
+            string query = "SELECT Area_id, AreaName FROM [qlQuanCafe].[dbo].[Area]"; // Câu lệnh SQL để lấy dữ liệu
 
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
@@ -57,7 +57,7 @@ namespace BTL.View
         // Method to load table names for a selected floor
         private void LoadTablesForFloor(int areaId)
         {
-            string query = "SELECT TableFood_name FROM [qlQuanCafe2].[dbo].[TableFood] WHERE idArea = @idArea";
+            string query = "SELECT TableFood_name FROM [qlQuanCafe].[dbo].[TableFood] WHERE idArea = @idArea";
 
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
@@ -128,7 +128,7 @@ namespace BTL.View
         {
             string floorName = txtFloor.Text.Trim();
             string tableName = txtTableName.Text.Trim();
-            int idArea = Convert.ToInt32(hdnAreaId.Value); // Lấy idArea từ hidden field
+            int idArea = Convert.ToInt32(hdnAreaId.Value); 
 
             if (!string.IsNullOrEmpty(tableName))
             {
@@ -139,7 +139,7 @@ namespace BTL.View
                     // Check if the table name already exists
                     string checkQuery = @"
             SELECT COUNT(*) 
-            FROM [qlQuanCafe2].[dbo].[TableFood]
+            FROM [qlQuanCafe].[dbo].[TableFood]
             WHERE TableFood_name = @tableFoodName";
 
                     using (SqlCommand cmdCheck = new SqlCommand(checkQuery, conn))
@@ -158,7 +158,7 @@ namespace BTL.View
 
                     // INSERT vào bảng TableFood nếu tên bàn chưa tồn tại
                     string insertQuery = @"
-            INSERT INTO [qlQuanCafe2].[dbo].[TableFood] 
+            INSERT INTO [qlQuanCafe].[dbo].[TableFood] 
                 (TableFood_name, idArea, status, currentBill_id) 
             VALUES 
                 (@tableFoodName, @idArea, @status, NULL)";
@@ -199,7 +199,7 @@ namespace BTL.View
                 using (SqlConnection conn = new SqlConnection(connectionString))
                 {
                     conn.Open();
-                    string query = "INSERT INTO [qlQuanCafe2].[dbo].[Area] (AreaName) VALUES (@AreaName)"; // Insert query
+                    string query = "INSERT INTO [qlQuanCafe].[dbo].[Area] (AreaName) VALUES (@AreaName)"; // Insert query
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {

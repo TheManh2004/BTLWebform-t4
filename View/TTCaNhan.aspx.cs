@@ -6,7 +6,8 @@ namespace BTL.View
 {
     public partial class TTCaNhan : System.Web.UI.Page
     {
-        private string connectionString = "Server=DESKTOP-9UGDVKE\\SQLEXPRESS;Database=qlQuanCafe2;Integrated Security=True;";
+        private string connectionString = "Server=Manh\\SQLEXPRESS;Database=qlQuanCafe;User Id=sa;Password=123";
+        private SqlConnection conn;
 
         protected void Page_Load(object sender, EventArgs e)
         {
@@ -108,7 +109,7 @@ namespace BTL.View
             }
 
             // Lấy tên đăng nhập từ session
-            string username = Session["UserName"]?.ToString();
+            _ = Session["UserName"]?.ToString();
             if (string.IsNullOrEmpty(username))
             {
                 Response.Redirect("homepage.aspx");

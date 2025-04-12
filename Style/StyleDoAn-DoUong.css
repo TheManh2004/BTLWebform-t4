@@ -204,10 +204,17 @@ table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 30px;
+    table-layout: fixed; /* Cố định layout để các cột không bị tràn */
+    border-collapse: collapse;
 }
 
 table, th, td {
     border: 1px solid #6F4E37;
+    word-wrap: break-word; /* Cho phép xuống dòng nếu nội dung dài */
+    overflow: hidden; /* Ẩn nội dung tràn */
+    text-overflow: ellipsis; /* Hiển thị ... nếu nội dung bị cắt */
+    white-space: normal; /* Cho phép xuống dòng */
+    padding: 8px;
 }
 
 th, td {
@@ -223,6 +230,45 @@ th {
 td {
     background-color: #fff;
     color: #6F4E37;
+}
+
+/* Đặt chiều rộng cố định cho từng cột */
+.table th:nth-child(1), .table td:nth-child(1) { /* STT */
+    width: 5%;
+}
+
+.table th:nth-child(2), .table td:nth-child(2) { /* Tên Món */
+    width: 20%;
+}
+
+.table th:nth-child(3), .table td:nth-child(3) { /* Giá */
+    width: 15%;
+}
+
+.table th:nth-child(4), .table td:nth-child(4) { /* Trạng Thái */
+    width: 15%;
+}
+
+.table th:nth-child(5), .table td:nth-child(5) { /* Danh Mục */
+    width: 15%;
+}
+
+.table th:nth-child(6), .table td:nth-child(6) { /* Đơn Vị Tính */
+    width: 15%;
+}
+
+.table th:nth-child(7), .table td:nth-child(7) { /* Ảnh */
+    width: 10%;
+}
+
+.table th:nth-child(8), .table td:nth-child(8) { /* Edit/Delete */
+    width: 15%;
+}
+/* Đảm bảo ảnh không làm tràn cột */
+.table img {
+    max-width: 50px;
+    max-height: 50px;
+    object-fit: cover; /* Giữ tỷ lệ ảnh */
 }
 
 .edit {

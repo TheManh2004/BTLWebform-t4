@@ -54,7 +54,7 @@
                        <asp:Repeater ID="rptProducts" runat="server">
                             <ItemTemplate>
                                <div class="product-item"  data-id="<%# Eval("Food_id") %>" data-category="<%# Eval("idCategory") %>">
-                                    <img src='<%# Eval("img") %>' alt="Product" />
+                                    <img src='<%# ResolveUrl(Eval("img").ToString()) %>' alt="Product" />
                                     <div class="name"><%# Eval("Food_name") %></div>
                                     <div class="price"><%# Eval("price", "{0:N0} đ") %></div>
                                 </div>

@@ -64,22 +64,36 @@
             
             <!-- Table Section -->
             <div class="table-container">
-                <asp:GridView ID="revenueGridView" runat="server" AutoGenerateColumns="false" CssClass="revenue-table"
-                    EmptyDataText="Không có dữ liệu doanh thu cho khoảng thời gian đã chọn">
-                    <Columns>
-                        <asp:BoundField DataField="Date" HeaderText="Thời gian" DataFormatString="{0:dd/MM/yyyy}" />
-                        <asp:BoundField DataField="TotalOrders" HeaderText="Số hóa đơn" DataFormatString="{0:N0}" />
-                        <asp:BoundField DataField="TotalRevenue" HeaderText="Doanh thu" DataFormatString="{0:N0} đ" />
-                    </Columns>
-                </asp:GridView>
-                
-                <div class="totals-container">
-                    <div class="total-row">
-                        <span class="total-label"><strong>Tổng cộng</strong></span>
-                        <span class="total-value"><strong><asp:Label ID="lblTotalOrders" runat="server"></asp:Label></strong></span>
-                        <span class="total-value"><strong><asp:Label ID="lblTotalRevenue" runat="server"></asp:Label> đ</strong></span>
-                    </div>
-                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Thời gian</th>
+                            <th>Doanh thu</th>
+                            <th>Thuế</th>
+                            <th>Lợi nhuận</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>02/03/2025</td>
+                            <td>1,499,000</td>
+                            <td>89,000</td>
+                            <td>?</td>
+                        </tr>
+                        <tr>
+                            <td>03/03/2025</td>
+                            <td>2,000,000</td>
+                            <td>100,000</td>
+                            <td>?</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Tổng cộng</strong></td>
+                            <td><strong>3,499,000</strong></td>
+                            <td><strong>189,000</strong></td>
+                            <td><strong>?</strong></td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>

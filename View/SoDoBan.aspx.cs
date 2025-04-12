@@ -128,7 +128,7 @@ namespace BTL.View
         {
             string floorName = txtFloor.Text.Trim();
             string tableName = txtTableName.Text.Trim();
-            int idArea = Convert.ToInt32(hdnAreaId.Value); // Lấy idArea từ hidden field
+            int idArea = Convert.ToInt32(hdnAreaId.Value); 
 
             if (!string.IsNullOrEmpty(tableName))
             {

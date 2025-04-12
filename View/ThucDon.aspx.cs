@@ -7,7 +7,7 @@ namespace BTL.View
 {
     public partial class ThucDon : System.Web.UI.Page
     {
-        private string connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["DbConnection"].ToString();
+        private string connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["MyConnectionString"].ToString();
 
         protected void Page_Load(object sender, EventArgs e)
         {
@@ -22,7 +22,7 @@ namespace BTL.View
         {
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
-                string query = "SELECT [FoodCategory_id], [FoodCategory_name], [Description], [status] FROM [qlQuanCafe2].[dbo].[FoodCategory]";
+                string query = "SELECT [FoodCategory_id], [FoodCategory_name], [Description], [status] FROM [qlQuanCafe].[dbo].[FoodCategory]";
                 SqlDataAdapter da = new SqlDataAdapter(query, conn);
                 DataTable dt = new DataTable();
                 da.Fill(dt);

@@ -2,8 +2,8 @@
 
 <!DOCTYPE html>
 
-    <html xmlns="http://www.w3.org/1999/xhtml">
-    <head runat="server">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head runat="server">
     <title>Thống kê doanh thu</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
@@ -54,47 +54,38 @@
 
                  <label for="toDate">Đến ngày:</label>
                  <asp:TextBox ID="toDate" runat="server" CssClass="date-picker" TextMode="Date"></asp:TextBox>
+                 
+                 <asp:Button ID="btnFilter" runat="server" Text="Lọc" OnClick="LoadRevenueData" CssClass="btn-filter" />
              </div>
             <hr />
+            
+            <!-- Error Message Panel -->
+            <asp:Label ID="lblErrorMessage" runat="server" CssClass="error-message" Visible="false"></asp:Label>
+            
             <!-- Table Section -->
             <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Thời gian</th>
-                            <th>Doanh thu</th>
-                            <th>Thuế</th>
-                            <th>Lợi nhuận</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>02/03/2025</td>
-                            <td>1,499,000</td>
-                            <td>89,000</td>
-                            <td>?</td>
-                        </tr>
-                        <tr>
-                            <td>03/03/2025</td>
-                            <td>2,000,000</td>
-                            <td>100,000</td>
-                            <td>?</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Tổng cộng</strong></td>
-                            <td><strong>3,499,000</strong></td>
-                            <td><strong>189,000</strong></td>
-                            <td><strong>?</strong></td>
-                        </tr>
-                    </tbody>
-                </table>
+                <asp:GridView ID="revenueGridView" runat="server" AutoGenerateColumns="false" CssClass="revenue-table"
+                    EmptyDataText="Không có dữ liệu doanh thu cho khoảng thời gian đã chọn">
+                    <Columns>
+                        <asp:BoundField DataField="Date" HeaderText="Thời gian" DataFormatString="{0:dd/MM/yyyy}" />
+                        <asp:BoundField DataField="TotalRevenue" HeaderText="Doanh thu" DataFormatString="{0:N0}" />
+                        <asp:BoundField DataField="Tax" HeaderText="Thuế" DataFormatString="{0:N0}" />
+                        <asp:BoundField DataField="Profit" HeaderText="Lợi nhuận" DataFormatString="{0:N0}" />
+                    </Columns>
+                </asp:GridView>
+                
+                <div class="totals-container">
+                    <div class="total-row">
+                        <span class="total-label"><strong>Tổng cộng</strong></span>
+                        <span class="total-value"><strong><asp:Label ID="lblTotalRevenue" runat="server"></asp:Label></strong></span>
+                        <span class="total-value"><strong><asp:Label ID="lblTotalTax" runat="server"></asp:Label></strong></span>
+                        <span class="total-value"><strong><asp:Label ID="lblTotalProfit" runat="server"></asp:Label></strong></span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
     </form>
-    <script src="../Scripts/ScriptsCode/DoanhThuJS.js">
-        
-    </script>
-
+    <script src="../Scripts/ScriptsCode/DoanhThuJS.js"></script>
 </body>
 </html>

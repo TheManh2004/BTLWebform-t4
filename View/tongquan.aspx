@@ -1,13 +1,11 @@
 ﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="tongquan.aspx.cs" Inherits="BTL.View.tongquan" %>
-
 <!DOCTYPE html>
-
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
    <title>Tổng quan</title>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../Style/StyleTongQuan.css" />
+   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+   <link rel="stylesheet" href="../Style/StyleTongQuan.css" />
 </head>
 <body>
     <form id="form1" runat="server" style="display: flex;">
@@ -32,36 +30,32 @@
         <a href="TTCaNhan.aspx">Thông tin cá nhân</a>
         <asp:Button ID="BtnLogout" runat="server" Text="Đăng xuất" class="btnlogout" OnClick="BtnLogout_Click" />
     </div>
-
     <!-- Main content -->
     <div class="main-content">
         <div class="header">
             <h1>Tổng quan</h1>
             <div class="notification"><i class="fa-regular fa-bell"></i></div>
         </div>
-
         <div class="info-cards">
             <div class="card">
                 <h3>Doanh thu</h3>
-                <p>4,000,000 đ</p>
+                <p><asp:Literal ID="litRevenue" runat="server">0 đ</asp:Literal></p>
             </div>
             <div class="card">
                 <h3>Lợi nhuận</h3>
-                <p>3,000,000 đ</p>
+                <p><asp:Literal ID="litProfit" runat="server">0 đ</asp:Literal></p>
             </div>
             <div class="card">
                 <h3>Nhân viên</h3>
-                <p>3</p>
+                <p><asp:Literal ID="litStaffCount" runat="server">0</asp:Literal></p>
             </div>
             <div class="card">
                 <h3>Tổng đơn hàng</h3>
-                <p>79</p>
+                <p><asp:Literal ID="litOrderCount" runat="server">0</asp:Literal></p>
             </div>
         </div>
     </div>
 </form>
-<script src="../Scripts/ScriptsCode/TongQuanJs.js">
-   
-</script>
+<script src="../Scripts/ScriptsCode/TongQuanJs.js"></script>
 </body>
 </html>

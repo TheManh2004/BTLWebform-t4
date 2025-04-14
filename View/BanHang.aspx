@@ -8,10 +8,26 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link rel="stylesheet" href="../Style/StyleBanHang.css" />
 </head>
+    <script>
+    window.onload = function() {
+        // Lấy dữ liệu từ localStorage
+        var userName = localStorage.getItem('UserName');
+        var userRole = localStorage.getItem('UserRole');
+        
+        // Nếu dữ liệu tồn tại, gán vào các HiddenField
+        if (userName && userRole) {
+            // Cập nhật giá trị của các HiddenField
+            document.getElementById('<%= hdnUserName.ClientID %>').value = userName;
+            document.getElementById('<%= hdnUserRole.ClientID %>').value = userRole;
+        }
+    };
+    </script>
 <body>
         
     <form id="form1" runat="server">
            <asp:ScriptManager runat="server" />
+        <asp:HiddenField ID="hdnUserName" runat="server" ClientIDMode="Static" />
+        <asp:HiddenField ID="hdnUserRole" runat="server" ClientIDMode="Static" />
         <asp:HiddenField ID="hdnActiveTab" runat="server" Value="table" ClientIDMode="Static" />
         <asp:HiddenField ID="hdnCartData" runat="server" Value=""  ClientIDMode="Static"/>
         <asp:HiddenField ID="hdnActiveCategory" runat="server" Value="all" ClientIDMode="Static" />
@@ -24,7 +40,7 @@
             <div class="menu-toggle-container">
                 <i class="fas fa-bars" onclick="toggleHeaderMenu()"></i>
                 <div class="dropdown-menu" id="headerDropdownMenu">
-                    <div class="dropdown-item" onclick="goToHome()">Trang chủ</div>
+                    <div class="dropdown-item" onclick="goToHome()"><a href ="homepage.aspx">trang chủ</a></div>
                     <div class="dropdown-item logout-item">
                         <asp:Button ID="btnLogout" runat="server" Text="Đăng xuất" OnClick="btnLogout_Click" CssClass="logout-btn" ClientIDMode="Static" />
                     </div>

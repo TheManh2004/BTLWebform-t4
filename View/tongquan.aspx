@@ -9,12 +9,27 @@
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../Style/StyleTongQuan.css" />
 </head>
+    <script>
+    window.onload = function() {
+        var userName = localStorage.getItem('UserName');
+        var userRole = localStorage.getItem('UserRole');
+        
+        if (userName && userRole) {
+            console.log('UserName:', userName);
+            console.log('UserRole:', userRole);
+            // Tiến hành xử lý thêm nếu cần (ví dụ: hiển thị tên người dùng)
+        } else {
+            console.log('Không tìm thấy UserName hoặc UserRole trong localStorage');
+            // Có thể chuyển hướng lại về trang đăng nhập nếu cần
+        }
+    };
+    </script>
 <body>
     <form id="form1" runat="server" style="display: flex;">
      <!-- Sidebar -->
     <div class="sidebar">
         <h2>MENU</h2>
-        <a href="#">Bán hàng</a>
+        <a href="BanHang.aspx">Bán hàng</a>
         <a href="tongquan.aspx">Tổng quan</a>
         <a href="SoDoBan.aspx">Sơ đồ bàn</a>
         <div class="box1">

@@ -12,7 +12,7 @@ namespace BTL.View
         {
             if (Session["UserName"] == null)
             {
-                Response.Redirect("homepage.aspx");  // Chuyển hướng về trang đăng nhập
+                Response.Redirect("homepage.aspx");  
             }
 
             if (!IsPostBack)

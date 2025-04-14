@@ -173,16 +173,12 @@ namespace BTL.View
                 string query = @"SELECT f.Food_id, f.Food_name, 
                         (SELECT FoodCategory_name FROM FoodCategory WHERE FoodCategory_id = f.idCategory) AS DanhMuc,
                         (SELECT DVT_Name FROM DVT WHERE DVT_id = f.idDVT) AS DVT,
-<<<<<<< HEAD
                         f.price AS Gia, 
                         CASE f.status 
                             WHEN 1 THEN 'Hoạt động' 
                             ELSE 'Ngừng hoạt động' 
                         END AS TrangThai,
                         f.img AS ImagePath
-=======
-                        f.price AS Gia, f.status AS TrangThai
->>>>>>> fa1b14d317d3aaa827398406394c3a53261b4331
                      FROM [qlQuanCafe].[dbo].[Food] f";
 
                 SqlDataAdapter da = new SqlDataAdapter(query, conn);
@@ -217,16 +213,14 @@ namespace BTL.View
                     string query = @"SELECT f.Food_id, f.Food_name, 
                             (SELECT FoodCategory_name FROM FoodCategory WHERE FoodCategory_id = f.idCategory) AS DanhMuc,
                             (SELECT DVT_Name FROM DVT WHERE DVT_id = f.idDVT) AS DVT,
-<<<<<<< HEAD
+
                             f.price AS Gia, 
                             CASE f.status 
                                 WHEN 1 THEN 'Hoạt động' 
                                 ELSE 'Ngừng hoạt động' 
                             END AS TrangThai,
                             f.img AS ImagePath
-=======
-                            f.price AS Gia, f.status AS TrangThai
->>>>>>> fa1b14d317d3aaa827398406394c3a53261b4331
+
                          FROM [qlQuanCafe].[dbo].[Food] f
                          WHERE f.Food_name LIKE @SearchKeyword";
 

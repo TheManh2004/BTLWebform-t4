@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data.SqlClient;
+using System.Web;
 using System.Web.UI;
 
 namespace BTL.View
@@ -10,20 +11,40 @@ namespace BTL.View
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            // Log giá trị session khi trang được tải
             if (!IsPostBack)
             {
-                string sessionLog = Session["UserName"] != null
-                    ? $"Session['UserName'] trong Page_Load: {Session["UserName"]}"
-                    : "Session['UserName'] trong Page_Load: chưa được thiết lập";
-                ScriptManager.RegisterStartupScript(this, GetType(), "logSession", $"console.log('{sessionLog}');", true);
-            }
+                // Nếu đã có session thì chuyển hướng luôn
+                if (Session["UserName"] != null)
+                {
+                    string username = Session["UserName"].ToString();
+                    string role = Session["UserRole"]?.ToString() ?? GetUserRole(username);
+                    ScriptManager.RegisterStartupScript(this, GetType(), "logRedirect", $@"
+                        console.log('Đã có session: {username}, role: {role}');
+                        localStorage.setItem('UserName', '{username}');
+                        localStorage.setItem('UserRole', '{role}');
+                        window.location.href = '{(role == "1" ? "tongquan.aspx" : "BanHang.aspx")}';
+                    ", true);
+                    return;
+                }
 
-            // Nếu người dùng đã đăng nhập, chuyển hướng đến trang TTCaNhan.aspx
-            if (Session["UserName"] != null)
-            {
-                ScriptManager.RegisterStartupScript(this, GetType(), "logRedirect", $"console.log('Chuyển hướng đến TTCaNhan.aspx vì Session['UserName'] = {Session["UserName"]}');", true);
-                Response.Redirect("TTCaNhan.aspx");
+                // Nếu không có session, kiểm tra Cookie
+                if (Request.Cookies["UserID"] != null)
+                {
+                    string username = Request.Cookies["UserID"].Value;
+                    string role = GetUserRole(username);
+
+                    // Gán lại vào Session
+                    Session["UserName"] = username;
+                    Session["UserRole"] = role;
+
+                    // Cập nhật localStorage và chuyển hướng
+                    ScriptManager.RegisterStartupScript(this, GetType(), "restoreFromCookie", $@"
+                        localStorage.setItem('UserName', '{username}');
+                        localStorage.setItem('UserRole', '{role}');
+                        console.log('Khôi phục từ cookie: {username}, role: {role}');
+                        window.location.href = '{(role == "1" ? "tongquan.aspx" : "BanHang.aspx")}';
+                    ", true);
+                }
             }
         }
 
@@ -45,38 +66,34 @@ namespace BTL.View
             string user = username.Text.Trim();
             string pass = password.Text.Trim();
 
-            // Kiểm tra xem các trường nhập có rỗng không
             if (string.IsNullOrEmpty(user) || string.IsNullOrEmpty(pass))
             {
                 ScriptManager.RegisterStartupScript(this, GetType(), "alert", "alert('Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu');", true);
                 return;
             }
 
-            // Xác thực thông tin đăng nhập
             if (ValidateUser(user, pass))
             {
-                // Lưu tên người dùng vào session
-                Session["UserName"] = user;
-
-                // Log ngay sau khi thiết lập session
-                string sessionLog = Session["UserName"] != null
-                    ? $"Session['UserName'] sau khi thiết lập: {Session["UserName"]}"
-                    : "Session['UserName'] sau khi thiết lập: không được thiết lập";
-                ScriptManager.RegisterStartupScript(this, GetType(), "logSession", $"alert('{sessionLog}');", true);
-
-                // Kiểm tra vai trò người dùng và chuyển hướng
                 string role = GetUserRole(user);
-                string redirectLog = $"Chuyển hướng sau khi đăng nhập: Username = {user}, Role = {role}";
-                ScriptManager.RegisterStartupScript(this, GetType(), "logRedirect", $"console.log('{redirectLog}');", true);
 
-                if (role == "1") // Admin
-                {
-                    Response.Redirect("tongquan.aspx");
-                }
-                else // Người dùng thường
-                {
-                    Response.Redirect("BanHang.aspx");
-                }
+                // Lưu vào Session
+                Session["UserName"] = user;
+                Session["UserRole"] = role;
+
+                // Tùy chọn: tạo Cookie giữ login
+                HttpCookie userCookie = new HttpCookie("UserID", user);
+                userCookie.Expires = DateTime.Now.AddMinutes(5); // Giữ trong 7 ngày
+                Response.Cookies.Add(userCookie);
+
+                // Đẩy lên localStorage và chuyển hướng
+                ScriptManager.RegisterStartupScript(this, GetType(), "setUserToStorage", $@"
+                    localStorage.setItem('UserName', '{user}');
+                    localStorage.setItem('UserRole', '{role}');
+                    console.log('Đăng nhập thành công: {user}, role: {role}');
+                    setTimeout(function() {{
+                        window.location.href = '{(role == "1" ? "tongquan.aspx" : "BanHang.aspx")}';
+                    }}, 300);
+                ", true);
             }
             else
             {
@@ -84,7 +101,6 @@ namespace BTL.View
             }
         }
 
-        // Kiểm tra thông tin đăng nhập từ SQL Server
         private bool ValidateUser(string username, string password)
         {
             using (SqlConnection connection = new SqlConnection(connectionString))
@@ -92,12 +108,12 @@ namespace BTL.View
                 string query = "SELECT COUNT(*) FROM [Account] WHERE UserName = @UserName AND PassWord = @Password";
                 SqlCommand command = new SqlCommand(query, connection);
                 command.Parameters.AddWithValue("@UserName", username);
-                command.Parameters.AddWithValue("@Password", password); // Nhớ mã hóa mật khẩu trong ứng dụng thực tế
+                command.Parameters.AddWithValue("@Password", password); // Cần mã hóa trong môi trường thật
 
                 connection.Open();
                 int userCount = (int)command.ExecuteScalar();
 
-                return userCount > 0; // Nếu tài khoản tồn tại
+                return userCount > 0;
             }
         }
     }

@@ -98,7 +98,7 @@ namespace BTL.View
             Session.Abandon();
 
             // Chuyển hướng về trang đăng nhập
-            Response.Redirect("Login.aspx");
+            Response.Redirect("homepage.aspx");
         }
     }
 }

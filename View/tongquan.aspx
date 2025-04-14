@@ -6,6 +6,7 @@
    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
    <link rel="stylesheet" href="../Style/StyleTongQuan.css" />
+
 </head>
 <body>
     <form id="form1" runat="server" style="display: flex;">

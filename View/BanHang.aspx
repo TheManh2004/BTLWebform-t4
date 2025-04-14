@@ -11,6 +11,7 @@
 <body>
         
     <form id="form1" runat="server">
+
            <asp:ScriptManager runat="server" />
         <asp:HiddenField ID="hdnActiveTab" runat="server" Value="table" ClientIDMode="Static" />
         <asp:HiddenField ID="hdnCartData" runat="server" Value=""  ClientIDMode="Static"/>
@@ -19,6 +20,7 @@
        <asp:HiddenField ID="hdnTargetTable" runat="server" value="" ClientIDMode="Static" />
         <asp:HiddenField ID="hdnPaymentMethod" runat="server" Value="" ClientIDMode="Static" />
         <asp:Button ID="btnHiddenPostBack" runat="server" OnClick="btnHiddenPostBack_Click" Style="display:none;" />
+        <asp:HiddenField ID="hfUsername" runat="server" />
         <div class="header">
             <span class="title">Bán hàng</span>
             <div class="menu-toggle-container">
@@ -223,7 +225,7 @@
                 </div>
             </div>
         </div>
-
+        
     
     </form>
 

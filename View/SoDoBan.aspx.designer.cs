@@ -42,6 +42,15 @@ namespace BTL.View
         protected global::System.Web.UI.WebControls.HiddenField hdnAreaId;
 
         /// <summary>
+        /// hdnSelectedFloorId control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.HiddenField hdnSelectedFloorId;
+
+        /// <summary>
         /// BtnLogout control.
         /// </summary>
         /// <remarks>

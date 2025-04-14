@@ -20,10 +20,16 @@ namespace BTL.View
 
         protected void Page_Load(object sender, EventArgs e)
         {
+            // Kiểm tra xem người dùng đã đăng nhập chưa
+            if (Session["UserName"] == null)
+            {
+                Response.Redirect("homepage.aspx");  // Chuyển hướng về trang đăng nhập
+            }
+            // Mã hiện có
             if (Request.Cookies["UserID"] == null)
             {
                 HttpCookie userCookie = new HttpCookie("UserID", "Guest");
-                userCookie.Expires = DateTime.Now.AddDays(30);
+                userCookie.Expires = DateTime.Now.AddSeconds(5);
                 Response.Cookies.Add(userCookie);
             }
 
@@ -35,7 +41,7 @@ namespace BTL.View
                 LoadCategories();
                 LoadAvailableTables();
 
-                // ✅ Nếu bàn đã chọn, tải hóa đơn từ CSDL
+                // Nếu đã chọn bàn, tải hóa đơn từ CSDL
                 if (!string.IsNullOrEmpty(Request.Form["hdnSelectedTable"]))
                 {
                     hdnSelectedTable.Value = Request.Form["hdnSelectedTable"];
@@ -250,21 +256,80 @@ namespace BTL.View
                 }
             }
         }
+        private string GetUserRole(string username)
+        {
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                string query = "SELECT idRole FROM [Account] WHERE UserName = @UserName";
+                SqlCommand command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@UserName", username);
+
+                connection.Open();
+                return command.ExecuteScalar()?.ToString();
+            }
+        }
+        private static int GetAccountIdByUsername(string username)
+        {
+
+            string connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["MyConnectionString"].ToString();
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                try
+                {
+                    conn.Open();
+                    string query = "SELECT idRole FROM Account WHERE UserName = @UserName";
+                    SqlCommand cmd = new SqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@UserName", username);
+
+                    object result = cmd.ExecuteScalar();
+                    if (result != null && result != DBNull.Value)
+                    {
+                        return Convert.ToInt32(result); // Trả về idRole
+                    }
+                    return -1; // Trả về -1 nếu không tìm thấy tài khoản
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Lỗi khi lấy idRole: " + ex.Message);
+                    return -1; // Trả về -1 nếu có lỗi
+                }
+            }
+        }
+
 
         [WebMethod]
         public static string SaveBill(string cartData, string selectedTable)
         {
             string connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["MyConnectionString"].ToString();
 
+            // Lấy username từ session
+            string username = HttpContext.Current.Session["UserName"]?.ToString();
+
+            if (string.IsNullOrEmpty(username))
+            {
+                return "❌ Lỗi: Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại!";
+            }
+
+            // Lấy userAccountId (idRole) từ username
+            int userAccountId = GetAccountIdByUsername(username);
+            if (userAccountId == -1)
+            {
+                return $"❌ Lỗi: Không tìm thấy tài khoản với username: {username}!";
+            }
+
+            // Log để kiểm tra username và userAccountId
+            string logMessage = $"SaveBill - Username: {username}, userAccountId (idRole): {userAccountId}";
+            string logScript = $"console.log('{logMessage}');";
+
             // Kiểm tra giá trị của selectedTable và cartData
             if (string.IsNullOrEmpty(selectedTable) || !int.TryParse(selectedTable, out int tableId))
             {
-                return "❌ Lỗi: ID bàn không hợp lệ!";
+                return logScript + "alert('❌ Lỗi: ID bàn không hợp lệ!');";
             }
 
             if (string.IsNullOrEmpty(cartData))
             {
-                return "❌ Lỗi: Dữ liệu giỏ hàng rỗng!";
+                return logScript + "alert('❌ Lỗi: Dữ liệu giỏ hàng rỗng!');";
             }
 
             try
@@ -276,47 +341,44 @@ namespace BTL.View
 
                     try
                     {
-                        // ✅ Giải mã dữ liệu JSON
+                        // Giải mã dữ liệu JSON
                         List<dynamic> cart = JsonConvert.DeserializeObject<List<dynamic>>(cartData);
                         if (cart == null || cart.Count == 0)
                         {
                             transaction.Rollback();
-                            return "❌ Lỗi: Giỏ hàng trống!";
+                            return logScript + "alert('❌ Lỗi: Giỏ hàng trống!');";
                         }
 
-                        // ✅ Lấy idAccount từ session hoặc cookie
-                        int userAccountId = 2; // Giả sử bạn lấy từ session hoặc cookie, có thể thay thế tùy theo ứng dụng thực tế
-
-                        // ✅ Kiểm tra quyền của tài khoản
-                        if (userAccountId != 2) // Ví dụ chỉ tài khoản có id = 2 mới được phép lưu hóa đơn
+                        // Kiểm tra quyền của tài khoản (ví dụ: chỉ tài khoản có idRole = 2 được phép lưu hóa đơn)
+                        if (userAccountId != 2 && userAccountId != 1)
                         {
                             transaction.Rollback();
-                            return "❌ Lỗi: Tài khoản không có quyền lưu hóa đơn!";
+                            return logScript + "alert('❌ Lỗi: Tài khoản không có quyền lưu hóa đơn!');";
                         }
 
-                        // ✅ Thêm hóa đơn mới
+                        // Thêm hóa đơn mới
                         string insertBillQuery = "INSERT INTO Bill (Date, idTable, idAccount, status) OUTPUT INSERTED.Bill_id VALUES (GETDATE(), @TableID, @AccountID, 1)";
                         SqlCommand cmdBill = new SqlCommand(insertBillQuery, conn, transaction);
                         cmdBill.Parameters.AddWithValue("@TableID", tableId);
-                        cmdBill.Parameters.AddWithValue("@AccountID", userAccountId); // Dùng idAccount được xác minh
+                        cmdBill.Parameters.AddWithValue("@AccountID", userAccountId);
                         object result = cmdBill.ExecuteScalar();
 
                         if (result == null || result == DBNull.Value)
                         {
                             transaction.Rollback();
-                            return "❌ Lỗi: Không thể tạo hóa đơn!";
+                            return logScript + "alert('❌ Lỗi: Không thể tạo hóa đơn!');";
                         }
 
                         int newBillId = Convert.ToInt32(result);
 
-                        // ✅ Cập nhật trạng thái bàn
+                        // Cập nhật trạng thái bàn
                         string updateTableQuery = "UPDATE TableFood SET status = 1, currentBill_id = @BillID WHERE TableFood_id = @TableID";
                         SqlCommand cmdUpdateTable = new SqlCommand(updateTableQuery, conn, transaction);
                         cmdUpdateTable.Parameters.AddWithValue("@BillID", newBillId);
                         cmdUpdateTable.Parameters.AddWithValue("@TableID", tableId);
                         cmdUpdateTable.ExecuteNonQuery();
 
-                        // ✅ Lưu danh sách món ăn vào BillInfo
+                        // Lưu danh sách món ăn vào BillInfo
                         foreach (var item in cart)
                         {
                             int foodId = item.Food_id;
@@ -333,18 +395,18 @@ namespace BTL.View
                         }
 
                         transaction.Commit();
-                        return "✅ Lưu hóa đơn thành công!";
+                        return logScript + "alert('✅ Lưu hóa đơn thành công!');";
                     }
                     catch (Exception ex)
                     {
                         transaction.Rollback();
-                        return "❌ Lỗi khi lưu hóa đơn: " + ex.Message;
+                        return logScript + $"alert('❌ Lỗi khi lưu hóa đơn: {ex.Message}');";
                     }
                 }
             }
             catch (Exception ex)
             {
-                return "❌ Lỗi kết nối CSDL: " + ex.Message;
+                return logScript + $"alert('❌ Lỗi kết nối CSDL: {ex.Message}');";
             }
         }
 

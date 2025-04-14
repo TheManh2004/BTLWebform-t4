@@ -12,6 +12,11 @@ namespace BTL.View
 
         protected void Page_Load(object sender, EventArgs e)
         {
+            if (Session["UserName"] == null)
+            {
+                Response.Redirect("homepage.aspx");  // Chuyển hướng về trang đăng nhập
+            }
+
             if (!IsPostBack)
             {
                 LoadData();  // Load data when the page is first loaded

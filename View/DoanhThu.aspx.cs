@@ -14,9 +14,13 @@ namespace BTL.View
     {
         // Connection string (store this in web.config in production)
         private string connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["MyConnectionString"].ToString();
-
         protected void Page_Load(object sender, EventArgs e)
         {
+            if (Session["UserName"] == null)
+            {
+                Response.Redirect("homepage.aspx");  // Chuyển hướng về trang đăng nhập
+            }
+
             if (!IsPostBack)
             {
                 // Set default date values

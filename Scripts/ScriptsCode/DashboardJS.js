@@ -41,6 +41,7 @@
         console.log(`📌 Hiển thị bàn thuộc tầng: ${floorId}`);
     }
 
+
     // Gán sự kiện click cho nút tầng
     document.querySelectorAll(".floor-btn").forEach(button => {
         button.addEventListener("click", function () {
@@ -179,7 +180,7 @@
         let finalTotal = afterDiscount + taxAmount;
         document.getElementById("txtFinalTotal").value = `${finalTotal.toLocaleString()} đ`;
         document.getElementById("txtCustomerPay").value = `${finalTotal.toLocaleString()} đ`;
-  
+
     }
     // Xóa hoặc giảm số lượng sản phẩm
     document.getElementById("cartItems").addEventListener("click", function (event) {
@@ -225,7 +226,7 @@
     });
 
 
-    function updateTargetTable() {         
+    function updateTargetTable() {
         let targetTable = document.getElementById("targetTable");
         let targetTableId = targetTable.value;
 
@@ -296,7 +297,7 @@
             document.getElementById("transferTableModal").style.display = "none"; // Đóng modal
         }, 500);
     });
-   
+
     document.getElementById("btnSaveBill").addEventListener("click", function () {
         let cart = safeParse(sessionStorage.getItem("cartData")) || [];
         let selectedTable = safeParse(sessionStorage.getItem("selectedTable"));
@@ -313,48 +314,6 @@
     });
 
 
-
-    //function getCartData() {
-    //    return safeParse(sessionStorage.getItem("cartData")) || [];
-    //}
-    //function updatePaymentDetails() {
-    //    // Lấy giỏ hàng từ sessionStorage
-    //    let cart = getCartData();
-
-    //    // Tính toán tổng tiền (subtotal)
-    //    let subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-
-    //    // Giảm giá (nếu có)
-    //    let discount = parseFloat(document.getElementById('txtDiscountAmount').value.replace(" đ", "")) || 0;
-
-    //    // Thuế giả sử là 10% của giá trị sau khi giảm giá
-    //    let tax = (subtotal - discount) * 0.1;
-
-    //    // Tổng thanh toán sau khi áp dụng thuế và giảm giá
-    //    let finalTotal = subtotal - discount + tax;
-
-    //    // Cập nhật thông tin lên giao diện
-    //    document.getElementById("txtTempTotal").value = `${subtotal} đ`;
-    //    document.getElementById("txtDiscountAmount").value = `${discount} đ`;
-    //    document.getElementById("txtTaxAmount").value = `${tax} đ`;
-    //    document.getElementById("txtFinalTotal").value = `${finalTotal} đ`;
-
-    //    // Hiển thị tổng tiền lên label (có thể là trong modal)
-    //    document.getElementById("lblTotalAmount").textContent = `${finalTotal} đ`;
-    //}
-    //function openPaymentModal() {
-    //    document.getElementById('paymentModal').style.display = 'block';
-    //    updatePaymentDetails(); // Cập nhật thông tin giỏ hàng khi mở modal
-    //}
-    //function showTotalAmountAlert() {
-    //    let cart = getCartData();
-    //    let subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-    //    let discount = parseFloat(document.getElementById('txtDiscountAmount').value.replace(" đ", "")) || 0;
-    //    let tax = (subtotal - discount) * 0.1;
-    //    let finalTotal = subtotal - discount + tax;
-
-    //    alert(`Tổng tiền: ${finalTotal} đ`);
-    //}
 
     document.getElementById('btnConfirmPay').addEventListener('click', function () {
         event.preventDefault(); // Ngăn chặn hành động submit của form
@@ -382,7 +341,7 @@
         closePaymentModal();
     });
 
-  
+
     const menuIcon = document.querySelector(".menu-icon-btn i");
     const cartDropdown = document.getElementById("cartDropdownMenu");
 
@@ -428,6 +387,19 @@
             showModal(menuFunctions[action]);
         };
     });
+    function toggleHeaderMenu() {
+        const dropdown = document.getElementById("headerDropdownMenu");
+        // Kiểm tra nếu dropdown hiện đang ẩn
+        if (dropdown.style.display === "none" || dropdown.style.display === "") {
+            dropdown.style.display = "block"; // Hiển thị menu
+        } else {
+            dropdown.style.display = "none"; // Ẩn menu
+        }
+    }
+
+    window.toggleHeaderMenu = toggleHeaderMenu; // Gắn hàm vào global scope
+
+
     // Hàm mở modal thanh toán
     // Hàm mở modal thanh toán
     checkStorageLimit(sessionStorage);

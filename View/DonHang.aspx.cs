@@ -1,150 +1,287 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Data.SqlClient;
 using System.Linq;
+using System.Text;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
-using System.Data;
-using System.IO;
-using System.Text;
 
 namespace BTL.View
 {
     public partial class DonHang : System.Web.UI.Page
     {
-        // Danh sách đơn hàng giả lập (thay bằng dữ liệu từ database trong thực tế)
-        private List<Order> GetOrders()
-        {
-            return new List<Order>
-            {
-                new Order { STT = 1, MaHoaDon = "BH0001", NgayGiao = "02/03/2025 10:44", NhanVien = "nvd", TongTien = "299,000đ", ThanhToan = "299,000đ", TrangThai = "Đã xác nhận, 02/03/2025 10:55", GhiChu = "" }
-                // Thêm các đơn hàng khác nếu cần
-            };
-        }
+        private string connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["MyConnectionString"].ToString();
 
         protected void Page_Load(object sender, EventArgs e)
         {
             if (!IsPostBack)
             {
-                LoadOrders(GetOrders());
+                // Kiểm tra đăng nhập
+                if (Session["UserName"] == null || Session["UserRole"] == null)
+                {
+                    Response.Redirect("homepage.aspx");
+                    return;
+                }
+
+                // Tải danh sách đơn hàng
+                LoadOrders();
             }
         }
-
-        protected void BtnLogout_Click(object sender, EventArgs e)
+        // Xử lý phân trang
+        protected void gvOrders_PageIndexChanging(object sender, GridViewPageEventArgs e)
         {
-            // Xóa toàn bộ session
-            Session.Clear();
-            Session.Abandon();
-
-            // Nếu sử dụng FormsAuthentication
-            System.Web.Security.FormsAuthentication.SignOut();
-
-            // Chuyển hướng về trang đăng nhập
-            Response.Redirect("homepage.aspx");
+            gvOrders.PageIndex = e.NewPageIndex;
+            LoadOrders(); // Tải lại danh sách đơn hàng
         }
 
-        // Tải danh sách đơn hàng vào GridView
-        private void LoadOrders(List<Order> orders)
+        // Tải danh sách đơn hàng từ CSDL
+        private void LoadOrders()
         {
-            gvInventory.DataSource = orders;
-            gvInventory.DataBind();
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                try
+                {
+                    conn.Open();
+                    string query = @"
+                SELECT 
+                    ROW_NUMBER() OVER (ORDER BY b.Bill_id) AS STT,
+                    b.Bill_id AS MaHoaDon,
+                    CONVERT(VARCHAR, b.Date, 103) + ' ' + CONVERT(VARCHAR, b.Date, 108) AS NgayGiao,
+                    a.UserName AS NhanVien,
+                    ISNULL(SUM(bi.Price * bi.count), 0) AS TongTien,
+                    CASE 
+                        WHEN b.status = 0 THEN 'Đã thanh toán'
+                        WHEN b.status = 1 THEN 'Chưa thanh toán'
+                        ELSE 'Đã hủy'
+                    END AS TrangThai
+                FROM Bill b
+                LEFT JOIN Account a ON b.idAccount = a.idRole
+                LEFT JOIN BillInfo bi ON b.Bill_id = bi.idBill
+                GROUP BY b.Bill_id, b.Date, a.UserName, b.status
+                ORDER BY b.Date DESC";
+                    SqlDataAdapter da = new SqlDataAdapter(query, conn);
+                    DataTable dt = new DataTable();
+                    da.Fill(dt);
+
+                    gvOrders.DataSource = dt;
+                    gvOrders.DataBind();
+                }
+                catch (Exception ex)
+                {
+                    ScriptManager.RegisterStartupScript(this, GetType(), "alert", $"alert('Lỗi khi tải đơn hàng: {ex.Message}');", true);
+                }
+            }
+        }
+        // Xử lý đăng xuất
+        protected void BtnLogout_Click(object sender, EventArgs e)
+        {
+            Session.Clear();
+            Session.Abandon();
+            Response.Redirect("homepage.aspx");
         }
 
         // Xử lý tìm kiếm
         protected void btnSearch_Click(object sender, EventArgs e)
         {
-            string searchText = txtSearch.Text.ToLower();
-            var orders = GetOrders();
-
-            if (!string.IsNullOrEmpty(searchText))
+            string searchText = txtSearch.Text.Trim().ToLower();
+            using (SqlConnection conn = new SqlConnection(connectionString))
             {
-                orders = orders.Where(o => o.MaHoaDon.ToLower().Contains(searchText) ||
-                                           o.NhanVien.ToLower().Contains(searchText) ||
-                                           o.GhiChu.ToLower().Contains(searchText)).ToList();
-            }
+                try
+                {
+                    conn.Open();
+                    string query = @"
+                      SELECT 
+                            ROW_NUMBER() OVER (ORDER BY b.Bill_id) AS STT,
+                            b.Bill_id AS MaHoaDon,
+                            CONVERT(VARCHAR, b.Date, 103) + ' ' + CONVERT(VARCHAR, b.Date, 108) AS NgayGiao,
+                            a.UserName AS NhanVien,
+                            ISNULL(SUM(bi.Price * bi.count), 0) AS TongTien,
+                            CASE 
+                                WHEN b.status = 0 THEN 'Đã thanh toán'
+                                WHEN b.status = 1 THEN 'Chưa thanh toán'
+                                ELSE 'Đã hủy'
+                            END AS TrangThai
+                        FROM Bill b
+                        LEFT JOIN Account a ON b.idAccount = a.idRole
+                        LEFT JOIN BillInfo bi ON b.Bill_id = bi.idBill
+                        WHERE 
+                            b.Bill_id LIKE @SearchText
+                            OR a.UserName LIKE @SearchText
+                        GROUP BY b.Bill_id, b.Date, a.UserName, b.status
+                        ORDER BY b.Date DESC";
+                    SqlCommand cmd = new SqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@SearchText", $"%{searchText}%");
+                    SqlDataAdapter da = new SqlDataAdapter(cmd);
+                    DataTable dt = new DataTable();
+                    da.Fill(dt);
 
-            LoadOrders(orders);
+                    gvOrders.DataSource = dt;
+                    gvOrders.DataBind();
+                }
+                catch (Exception ex)
+                {
+                    ScriptManager.RegisterStartupScript(this, GetType(), "alert", $"alert('Lỗi khi tìm kiếm: {ex.Message}');", true);
+                }
+            }
         }
 
         // Xử lý lọc theo trạng thái
         protected void ddlStatus_SelectedIndexChanged(object sender, EventArgs e)
         {
             string selectedStatus = ddlStatus.SelectedValue;
-            var orders = GetOrders();
-
-            if (!string.IsNullOrEmpty(selectedStatus))
+            using (SqlConnection conn = new SqlConnection(connectionString))
             {
-                if (selectedStatus == "TatCa")
+                try
                 {
-                    LoadOrders(orders);
-                }
-                else
-                {
-                    string trangThai = "";
-                    if (selectedStatus == "DaThanhToan") trangThai = "Đã xác nhận";
-                    else if (selectedStatus == "ChuaThanhToan") trangThai = "Chưa thanh toán";
-                    else if (selectedStatus == "DaHuy") trangThai = "Đã hủy";
+                    conn.Open();
+                    string query = @"
+                                               SELECT 
+                            ROW_NUMBER() OVER (ORDER BY b.Bill_id) AS STT,
+                            b.Bill_id AS MaHoaDon,
+                            CONVERT(VARCHAR, b.Date, 103) + ' ' + CONVERT(VARCHAR, b.Date, 108) AS NgayGiao,
+                            a.UserName AS NhanVien,
+                            ISNULL(SUM(bi.Price * bi.count), 0) AS TongTien,
+                            CASE 
+                                WHEN b.status = 0 THEN 'Đã thanh toán'
+                                WHEN b.status = 1 THEN 'Chưa thanh toán'
+                                ELSE 'Đã hủy'
+                            END AS TrangThai
+                        FROM Bill b
+                        LEFT JOIN Account a ON b.idAccount = a.idRole
+                        LEFT JOIN BillInfo bi ON b.Bill_id = bi.idBill
+                        WHERE 1=1";
+                    if (selectedStatus != "TatCa")
+                    {
+                        int status = selectedStatus == "DaThanhToan" ? 0 : selectedStatus == "ChuaThanhToan" ? 1 : -1;
+                        query += " AND b.status = @Status";
+                    }
+                    query += @"
+                       GROUP BY b.Bill_id, b.Date, a.UserName, b.status
+                        ORDER BY b.Date DESC";
 
-                    orders = orders.Where(o => o.TrangThai == trangThai).ToList();
-                    LoadOrders(orders);
+                    SqlCommand cmd = new SqlCommand(query, conn);
+                    if (selectedStatus != "TatCa")
+                    {
+                        cmd.Parameters.AddWithValue("@Status", selectedStatus == "DaThanhToan" ? 0 : selectedStatus == "ChuaThanhToan" ? 1 : -1);
+                    }
+                    SqlDataAdapter da = new SqlDataAdapter(cmd);
+                    DataTable dt = new DataTable();
+                    da.Fill(dt);
+
+                    gvOrders.DataSource = dt;
+                    gvOrders.DataBind();
+                }
+                catch (Exception ex)
+                {
+                    ScriptManager.RegisterStartupScript(this, GetType(), "alert", $"alert('Lỗi khi lọc trạng thái: {ex.Message}');", true);
                 }
             }
         }
 
-        // Xử lý nút Cập nhật
-        protected void btnUpdate_Click(object sender, EventArgs e)
-        {
-            // Logic cập nhật đơn hàng (có thể chuyển hướng đến trang chỉnh sửa hoặc hiển thị form)
-            Response.Write("<script>alert('Chức năng cập nhật đang được phát triển!');</script>");
-        }
-
-        // Xử lý nút Xuất CSV thay vì Excel
+        // Xử lý xuất CSV
         protected void btnExport_Click(object sender, EventArgs e)
         {
-            var orders = GetOrders();
-            StringBuilder sb = new StringBuilder();
-
-            // Thêm tiêu đề cột
-            sb.AppendLine("STT,Mã hóa đơn,Ngày giao,Nhân viên,Tổng tiền,Thanh toán,Trạng thái,Ghi chú");
-
-            // Thêm dữ liệu đơn hàng
-            foreach (var order in orders)
+            using (SqlConnection conn = new SqlConnection(connectionString))
             {
-                sb.AppendLine($"{order.STT},\"{order.MaHoaDon}\",\"{order.NgayGiao}\",\"{order.NhanVien}\",\"{order.TongTien}\",\"{order.ThanhToan}\",\"{order.TrangThai}\",\"{order.GhiChu}\"");
+                try
+                {
+                    conn.Open();
+                    string query = @"
+                     SELECT 
+                        ROW_NUMBER() OVER (ORDER BY b.Bill_id) AS STT,
+                        b.Bill_id AS MaHoaDon,
+                        CONVERT(VARCHAR, b.Date, 103) + ' ' + CONVERT(VARCHAR, b.Date, 108) AS NgayGiao,
+                        a.UserName AS NhanVien,
+                        ISNULL(SUM(bi.Price * bi.count), 0) AS TongTien,
+                        CASE 
+                            WHEN b.status = 0 THEN 'Đã thanh toán'
+                            WHEN b.status = 1 THEN 'Chưa thanh toán'
+                            ELSE 'Đã hủy'
+                        END AS TrangThai
+                    FROM Bill b
+                    LEFT JOIN Account a ON b.idAccount = a.idRole
+                    LEFT JOIN BillInfo bi ON b.Bill_id = bi.idBill
+                    GROUP BY b.Bill_id, b.Date, a.UserName, b.status
+                    ORDER BY b.Date DESC";
+                    SqlDataAdapter da = new SqlDataAdapter(query, conn);
+                    DataTable dt = new DataTable();
+                    da.Fill(dt);
+
+                    StringBuilder sb = new StringBuilder();
+                    sb.AppendLine("STT,Mã hóa đơn,Ngày giao,Nhân viên,Tổng tiền,Trạng thái,Ghi chú");
+
+                    foreach (DataRow row in dt.Rows)
+                    {
+                        sb.AppendLine($"{row["STT"]},\"{row["MaHoaDon"]}\",\"{row["NgayGiao"]}\",\"{row["NhanVien"]}\",\"{row["TongTien"]}\",\"{row["TrangThai"]}\",\"{row["GhiChu"]}\"");
+                    }
+
+                    Response.Clear();
+                    Response.Buffer = true;
+                    Response.AddHeader("content-disposition", "attachment;filename=DonHang.csv");
+                    Response.Charset = "utf-8";
+                    Response.ContentType = "text/csv; charset=utf-8";
+                    Response.Output.Write(sb.ToString());
+                    Response.Flush();
+                    Response.End();
+                }
+                catch (Exception ex)
+                {
+                    ScriptManager.RegisterStartupScript(this, GetType(), "alert", $"alert('Lỗi khi xuất CSV: {ex.Message}');", true);
+                }
+            }
+        }
+
+        // Xử lý cập nhật đơn hàng
+        protected void btnUpdate_Click(object sender, EventArgs e)
+        {
+            List<string> selectedBills = new List<string>();
+            foreach (GridViewRow row in gvOrders.Rows)
+            {
+                CheckBox chkRow = (CheckBox)row.FindControl("chkRow");
+                if (chkRow != null && chkRow.Checked)
+                {
+                    selectedBills.Add(row.Cells[2].Text); // MaHoaDon
+                }
             }
 
-            // Xuất file CSV
-            Response.Clear();
-            Response.Buffer = true;
-            Response.AddHeader("content-disposition", "attachment;filename=DonHang.csv");
-            Response.Charset = "utf-8";
-            Response.ContentType = "text/csv; charset=utf-8";
-            Response.Output.Write(sb.ToString());
-            Response.Flush();
-            Response.End();
+            if (selectedBills.Count == 0)
+            {
+                ScriptManager.RegisterStartupScript(this, GetType(), "alert", "alert('Vui lòng chọn ít nhất một đơn hàng để cập nhật!');", true);
+                return;
+            }
+
+            // Ví dụ: Chuyển trạng thái sang "Đã hủy" cho các đơn hàng được chọn
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                try
+                {
+                    conn.Open();
+                    foreach (string billId in selectedBills)
+                    {
+                        string query = "UPDATE Bill SET status = -1 WHERE Bill_id = @BillId";
+                        SqlCommand cmd = new SqlCommand(query, conn);
+                        cmd.Parameters.AddWithValue("@BillId", billId);
+                        cmd.ExecuteNonQuery();
+                    }
+
+                    ScriptManager.RegisterStartupScript(this, GetType(), "alert", "alert('Cập nhật đơn hàng thành công!');", true);
+                    LoadOrders(); // Tải lại danh sách
+                }
+                catch (Exception ex)
+                {
+                    ScriptManager.RegisterStartupScript(this, GetType(), "alert", $"alert('Lỗi khi cập nhật: {ex.Message}');", true);
+                }
+            }
         }
 
+        // Xử lý chọn dòng trong GridView
         protected void gvOrders_SelectedIndexChanged(object sender, EventArgs e)
         {
-            // Logic khi chọn một dòng trong GridView (nếu cần)
+            string selectedBillId = gvOrders.SelectedRow.Cells[2].Text; // MaHoaDon
+            ScriptManager.RegisterStartupScript(this, GetType(), "alert", $"alert('Đã chọn đơn hàng: {selectedBillId}');", true);
+            // Có thể thêm logic hiển thị chi tiết đơn hàng nếu cần
         }
-
-        protected void gvInventory_SelectedIndexChanged(object sender, EventArgs e)
-        {
-
-        }
-    }
-
-    // Lớp Order để lưu thông tin đơn hàng
-    public class Order
-    {
-        public int STT { get; set; }
-        public string MaHoaDon { get; set; }
-        public string NgayGiao { get; set; }
-        public string NhanVien { get; set; }
-        public string TongTien { get; set; }
-        public string ThanhToan { get; set; }
-        public string TrangThai { get; set; }
-        public string GhiChu { get; set; }
     }
 }

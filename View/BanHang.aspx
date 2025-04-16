@@ -1,4 +1,4 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="BanHang.aspx.cs" Inherits="BTL.View.BanHang" %>
+﻿﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="BanHang.aspx.cs" Inherits="BTL.View.BanHang" %>
 
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -8,10 +8,29 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link rel="stylesheet" href="../Style/StyleBanHang.css" />
 </head>
+    <script>
+        window.onload = function () {
+            // Lấy dữ liệu từ localStorage
+            var userName = localStorage.getItem('UserName');
+            var userRole = localStorage.getItem('UserRole');
+            if (userRole == 2) {
+                document.getElementById('trangchu').style.display = 'none';
+            }
+
+            // Nếu dữ liệu tồn tại, gán vào các HiddenField
+            if (userName && userRole) {
+                // Cập nhật giá trị của các HiddenField
+                document.getElementById('<%= hdnUserName.ClientID %>').value = userName;
+            document.getElementById('<%= hdnUserRole.ClientID %>').value = userRole;
+            }
+        };
+    </script>
 <body>
         
     <form id="form1" runat="server">
            <asp:ScriptManager runat="server" />
+        <asp:HiddenField ID="hdnUserName" runat="server" ClientIDMode="Static" />
+        <asp:HiddenField ID="hdnUserRole" runat="server" ClientIDMode="Static" />
         <asp:HiddenField ID="hdnActiveTab" runat="server" Value="table" ClientIDMode="Static" />
         <asp:HiddenField ID="hdnCartData" runat="server" Value=""  ClientIDMode="Static"/>
         <asp:HiddenField ID="hdnActiveCategory" runat="server" Value="all" ClientIDMode="Static" />
@@ -24,7 +43,7 @@
             <div class="menu-toggle-container">
                 <i class="fas fa-bars" onclick="toggleHeaderMenu()"></i>
                 <div class="dropdown-menu" id="headerDropdownMenu">
-                    <div class="dropdown-item" onclick="goToHome()">Trang chủ</div>
+                    <div class="dropdown-item" id="trangchu" onclick="goToHome()"><a href ="homepage.aspx" style="text-decoration:none">Trang chủ</a></div>
                     <div class="dropdown-item logout-item">
                         <asp:Button ID="btnLogout" runat="server" Text="Đăng xuất" OnClick="btnLogout_Click" CssClass="logout-btn" ClientIDMode="Static" />
                     </div>
@@ -54,7 +73,7 @@
                        <asp:Repeater ID="rptProducts" runat="server">
                             <ItemTemplate>
                                <div class="product-item"  data-id="<%# Eval("Food_id") %>" data-category="<%# Eval("idCategory") %>">
-                                    <img src='<%# ResolveUrl(Eval("img").ToString()) %>' alt="Product" />
+                                        <img src='<%# ResolveUrl(Eval("img").ToString()) %>' alt="Product" />
                                     <div class="name"><%# Eval("Food_name") %></div>
                                     <div class="price"><%# Eval("price", "{0:N0} đ") %></div>
                                 </div>

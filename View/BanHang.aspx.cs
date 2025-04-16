@@ -20,15 +20,31 @@ namespace BTL.View
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            if (Request.Cookies["UserID"] == null)
-            {
-                HttpCookie userCookie = new HttpCookie("UserID", "Guest");
-                userCookie.Expires = DateTime.Now.AddDays(30);
-                Response.Cookies.Add(userCookie);
-            }
-
             if (!IsPostBack)
             {
+                // Kiểm tra nếu người dùng đã đăng nhập qua Session
+                if (Session["UserName"] == null || Session["UserRole"] == null)
+                {
+                    // Nếu không có thông tin trong session, kiểm tra các input ẩn (được truyền qua từ frontend)
+                    string userName = Request.Form["hdnUserName"] ?? Request["hdnUserName"];
+                    string userRole = Request.Form["hdnUserRole"] ?? Request["hdnUserRole"];
+
+                    // Nếu vẫn không có thông tin hợp lệ, chuyển hướng về trang đăng nhập
+                    if (string.IsNullOrEmpty(userName) || string.IsNullOrEmpty(userRole))
+                    {
+                        Response.Redirect("homepage.aspx");
+                        return;
+                    }
+
+                    // Nếu có thông tin, lưu vào Session để sử dụng trên các trang khác
+                    Session["UserName"] = userName;
+                    Session["UserRole"] = userRole;
+
+                    // Cập nhật UI nếu cần
+                    // LabelWelcome.Text = $"Chào {userName}";
+                }
+
+                // Tiếp tục xử lý các phần khác trên trang (ví dụ: load bảng, load tầng, v.v.)
                 LoadTables();
                 LoadFloors();
                 BindProducts();
@@ -163,11 +179,11 @@ namespace BTL.View
                 {
                     conn.Open();
                     string query = @"
-                        SELECT CAST('all' AS VARCHAR(50)) AS FoodCategory_id, 'Tất cả' AS FoodCategory_name
-                        UNION ALL
-                        SELECT CAST(FoodCategory_id AS VARCHAR(50)), FoodCategory_name 
-                        FROM FoodCategory 
-                        WHERE status = 1";
+                            SELECT CAST('all' AS VARCHAR(50)) AS FoodCategory_id, 'All' AS FoodCategory_name
+                            UNION ALL
+                            SELECT CAST(FoodCategory_id AS VARCHAR(50)), FoodCategory_name 
+                            FROM FoodCategory 
+                            WHERE status = 1";
 
                     SqlDataAdapter da = new SqlDataAdapter(query, conn);
                     DataTable dt = new DataTable();
@@ -184,9 +200,22 @@ namespace BTL.View
         }
         protected void btnLogout_Click(object sender, EventArgs e)
         {
-            // Đăng xuất và chuyển hướng về trang đăng nhập
-            Session.Clear(); // Xóa session người dùng
-            Response.Redirect("~/Login.aspx"); // Chuyển hướng về trang đăng nhập
+            // Xóa session người dùng
+            Session.Clear();  // Xóa toàn bộ session
+
+            // Xóa cookie nếu có
+            if (Request.Cookies["UserID"] != null)
+            {
+                HttpCookie cookie = new HttpCookie("UserID");
+                cookie.Expires = DateTime.Now.AddDays(-1);  // Đặt ngày hết hạn của cookie trước 1 ngày
+                Response.Cookies.Add(cookie);  // Thêm cookie đã hết hạn vào response để xóa cookie
+            }
+
+            // Xóa localStorage trên client-side
+            ScriptManager.RegisterStartupScript(this, GetType(), "clearLocalStorage", "localStorage.clear();", true);
+
+            // Chuyển hướng về trang đăng nhập
+            Response.Redirect("homepage.aspx");
         }
 
         protected void btnHiddenPostBack_Click(object sender, EventArgs e)
@@ -202,12 +231,12 @@ namespace BTL.View
                 {
                     conn.Open();
                     string query = @"
-    SELECT TOP 1 b.Bill_id, f.Food_id, f.Food_name, bi.count, f.price 
-    FROM BillInfo bi
-    INNER JOIN Bill b ON bi.idBill = b.Bill_id
-    INNER JOIN Food f ON bi.idFood = f.Food_id
-    WHERE b.idTable = @TableID AND b.status = 1
-    ORDER BY b.Bill_id DESC";  // Lấy hóa đơn mới nhất
+        SELECT TOP 1 b.Bill_id, f.Food_id, f.Food_name, bi.count, f.price 
+        FROM BillInfo bi
+        INNER JOIN Bill b ON bi.idBill = b.Bill_id
+        INNER JOIN Food f ON bi.idFood = f.Food_id
+        WHERE b.idTable = @TableID AND b.status = 1
+        ORDER BY b.Bill_id DESC";  // Lấy hóa đơn mới nhất
 
                     SqlCommand cmd = new SqlCommand(query, conn);
                     cmd.Parameters.AddWithValue("@TableID", tableId);
@@ -252,11 +281,10 @@ namespace BTL.View
         }
 
         [WebMethod]
-        public static string SaveBill(string cartData, string selectedTable)
+        public static string SaveBill(string cartData, string selectedTable, string idRole)
         {
-            string connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["MyConnectionString"].ToString();
+           string connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["MyConnectionString"].ToString();
 
-            // Kiểm tra giá trị của selectedTable và cartData
             if (string.IsNullOrEmpty(selectedTable) || !int.TryParse(selectedTable, out int tableId))
             {
                 return "❌ Lỗi: ID bàn không hợp lệ!";
@@ -284,21 +312,11 @@ namespace BTL.View
                             return "❌ Lỗi: Giỏ hàng trống!";
                         }
 
-                        // ✅ Lấy idAccount từ session hoặc cookie
-                        int userAccountId = 2; // Giả sử bạn lấy từ session hoặc cookie, có thể thay thế tùy theo ứng dụng thực tế
-
-                        // ✅ Kiểm tra quyền của tài khoản
-                        if (userAccountId != 2) // Ví dụ chỉ tài khoản có id = 2 mới được phép lưu hóa đơn
-                        {
-                            transaction.Rollback();
-                            return "❌ Lỗi: Tài khoản không có quyền lưu hóa đơn!";
-                        }
-
-                        // ✅ Thêm hóa đơn mới
-                        string insertBillQuery = "INSERT INTO Bill (Date, idTable, idAccount, status) OUTPUT INSERTED.Bill_id VALUES (GETDATE(), @TableID, @AccountID, 1)";
+                        // ✅ Thêm hóa đơn mới (lưu idAccount là idRole)
+                        string insertBillQuery = "INSERT INTO Bill (Date, idTable, idAccount, status) OUTPUT INSERTED.Bill_id VALUES (GETDATE(), @TableID, @IdAccount, 1)";
                         SqlCommand cmdBill = new SqlCommand(insertBillQuery, conn, transaction);
                         cmdBill.Parameters.AddWithValue("@TableID", tableId);
-                        cmdBill.Parameters.AddWithValue("@AccountID", userAccountId); // Dùng idAccount được xác minh
+                        cmdBill.Parameters.AddWithValue("@IdAccount", idRole); // Lưu idRole vào idAccount
                         object result = cmdBill.ExecuteScalar();
 
                         if (result == null || result == DBNull.Value)
@@ -334,6 +352,7 @@ namespace BTL.View
 
                         transaction.Commit();
                         return "✅ Lưu hóa đơn thành công!";
+
                     }
                     catch (Exception ex)
                     {
@@ -347,11 +366,11 @@ namespace BTL.View
                 return "❌ Lỗi kết nối CSDL: " + ex.Message;
             }
         }
-
         protected void btnSaveBill_Click(object sender, EventArgs e)
         {
             string cartData = hdnCartData.Value.Trim();
             string selectedTable = hdnSelectedTable.Value.Trim();
+            string idRole = hdnUserRole.Value.Trim();  // Lấy idRole từ input ẩn
 
             if (string.IsNullOrEmpty(cartData))
             {
@@ -363,24 +382,32 @@ namespace BTL.View
                 ClientScript.RegisterStartupScript(this.GetType(), "alert", "alert('❌ ID bàn không hợp lệ!');", true);
                 return;
             }
+            if (string.IsNullOrEmpty(idRole))
+            {
+                ClientScript.RegisterStartupScript(this.GetType(), "alert", "alert('❌ Lỗi: Không tìm thấy idRole!');", true);
+                return;
+            }
 
             // ✅ Kiểm tra lại giá trị nhận được từ input ẩn
             Console.WriteLine("📌 Dữ liệu từ input ẩn:");
             Console.WriteLine("📦 cartData: " + cartData);
             Console.WriteLine("📌 selectedTable: " + selectedTable);
+            Console.WriteLine("📌 idRole: " + idRole);
 
-            // ✅ Gọi hàm lưu hóa đơn
-            string result = SaveBill(cartData, selectedTable);
+            // ✅ Gọi hàm lưu hóa đơn và truyền idRole vào SaveBill (lưu vào idAccount)
+            string result = SaveBill(cartData, selectedTable, idRole);
 
             // ✅ Hiển thị kết quả sau khi lưu
             ClientScript.RegisterStartupScript(this.GetType(), "alert", "alert('" + result + "');", true);
+
             // Cập nhật danh sách bàn trống sau khi lưu hóa đơn
             LoadAvailableTables();
         }
 
+
         public int FindBillByTableId(int tableId)
         {
-             string connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["MyConnectionString"].ToString();
+           string connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["MyConnectionString"].ToString();
 
             try
             {
@@ -564,10 +591,10 @@ namespace BTL.View
 
                     // Xóa dữ liệu localStorage của bàn sau khi thanh toán
                     ScriptManager.RegisterStartupScript(this, GetType(), "clearSession", $@"
-                sessionStorage.removeItem('cartData'); 
-                localStorage.removeItem('order_{selectedTable}'); // Xóa order theo ID bàn
-                console.log('🗑 Xóa localStorage: order_{selectedTable}');
-            ", true);
+                    sessionStorage.removeItem('cartData'); 
+                    localStorage.removeItem('order_{selectedTable}'); // Xóa order theo ID bàn
+                    console.log('🗑 Xóa localStorage: order_{selectedTable}');
+                ", true);
                 }
                 catch (Exception ex)
                 {
@@ -580,6 +607,3 @@ namespace BTL.View
 
     }
 }
-
-
-

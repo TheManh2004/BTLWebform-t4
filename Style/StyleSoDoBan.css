@@ -17,22 +17,22 @@
     justify-content: space-between;
 }
 
-    .sidebar h2 {
-        margin-bottom: 20px;
-        margin-left: 10px;
-    }
+.sidebar h2 {
+    margin-bottom: 20px;
+    margin-left: 10px;
+}
 
-    .sidebar a {
-        text-decoration: none;
-        color: white;
-        padding: 10px;
-        border-radius: 5px;
-        display: block;
-    }
+.sidebar a {
+    text-decoration: none;
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    display: block;
+}
 
-        .sidebar a:hover {
-            background-color: #D2B48C;
-        }
+.sidebar a:hover {
+    background-color: #D2B48C;
+}
 
 .box1 {
     text-decoration: none;
@@ -50,9 +50,9 @@
     gap: 80px;
 }
 
-    .box1:hover {
-        background-color: #D2B48C;
-    }
+.box1:hover {
+    background-color: #D2B48C;
+}
 
 .submenu {
     display: none;
@@ -61,16 +61,16 @@
     padding-top: 10px;
 }
 
-    .submenu a {
-        text-decoration: none;
-        color: white;
-        padding: 8px;
-        border-radius: 5px;
-    }
+.submenu a {
+    text-decoration: none;
+    color: white;
+    padding: 8px;
+    border-radius: 5px;
+}
 
-        .submenu a:hover {
-            background-color: #D2B48C;
-        }
+.submenu a:hover {
+    background-color: #D2B48C;
+}
 
 .rotate {
     transition: transform 0.3s ease;
@@ -93,9 +93,9 @@
     cursor: pointer;
 }
 
-    .btnlogout:hover {
-        background-color: #D2B48C;
-    }
+.btnlogout:hover {
+    background-color: #D2B48C;
+}
 
 /*main-content*/
 .main-content {
@@ -114,16 +114,16 @@
     margin-top: 15px;
 }
 
-    .header h1 {
-        font-size: 24px;
-        margin: 0;
-        color: #6F4E37;
-    }
+.header h1 {
+    font-size: 24px;
+    margin: 0;
+    color: #6F4E37;
+}
 
-    .header .notification {
-        font-size: 20px;
-        color: #6F4E37;
-    }
+.header .notification {
+    font-size: 20px;
+    color: #6F4E37;
+}
 
 .floor-tabs {
     display: flex;
@@ -138,20 +138,13 @@
     padding: 10px 20px;
     font-size: 16px;
     cursor: pointer;
-}
-.floor-btn {
-    width: 100px;
-    border: none;
-    background: none;
-    padding: 10px 20px;
-    font-size: 16px;
-    cursor: pointer;
+    transition: background-color 0.3s ease;
 }
 
-    .btn-floor.active {
-        background-color: #D2B48C;
-        border-radius: 5px;
-    }
+.btn-floor.active {
+    background-color: #D2B48C;
+    border-radius: 5px;
+}
 
 .btn-add {
     width: 150px;
@@ -163,43 +156,58 @@
     cursor: pointer;
 }
 
-    .btn-add:hover {
-        background-color: #8B5E3B;
-    }
+.btn-add:hover {
+    background-color: #8B5E3B;
+}
 
 .table-container {
     display: flex;
     flex-wrap: wrap;
     justify-content: flex-start;
-    gap: 20px;
+    gap: 10px;
     margin-top: 20px;
 }
 
-    .table-container .table-box {
-        width: 150px;
-        height: 150px;
-        background-color: white;
-        border: 1px solid #D2B48C;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        text-align: center;
-        border-radius: 10px;
-        cursor: pointer;
-    }
+.table-container .table-box {
+    width: 150px;
+    height: 150px;
+    background-color: white;
+    border: 1px solid #D2B48C;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    border-radius: 10px;
+    cursor: pointer;
+    flex: 0 0 auto;
+}
 
-    .table-container .add-table {
-        width: 150px;
-        height: 150px;
-        background-color: #fff;
-        border: 1px dashed #D2B48C;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        text-align: center;
-        border-radius: 10px;
-        cursor: pointer;
-    }
+.table-container .table-box .floor-name {
+    font-size: 12px;
+    color: #666;
+    margin: 5px 0;
+}
+
+.table-container .table-box .status {
+    font-size: 12px;
+    color: #e74c3c;
+    margin-top: 5px;
+}
+
+.table-container .add-table {
+    width: 150px;
+    height: 150px;
+    background-color: #fff;
+    border: 1px dashed #D2B48C;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    border-radius: 10px;
+    cursor: pointer;
+    flex: 0 0 auto;
+}
 
 .add-table:hover {
     background-color: #f4e1a1;
@@ -227,61 +235,61 @@
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
-    .modal-content h3 {
-        margin: 0 0 15px;
-        font-size: 18px;
-        color: #333;
-    }
+.modal-content h3 {
+    margin: 0 0 15px;
+    font-size: 18px;
+    color: #333;
+}
 
-    .modal-content .close {
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        font-size: 24px;
-        cursor: pointer;
-        color: #666;
-    }
+.modal-content .close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 24px;
+    cursor: pointer;
+    color: #666;
+}
 
-    .modal-content label {
-        display: block;
-        margin-bottom: 5px;
-        font-size: 14px;
-        color: #333;
-    }
+.modal-content label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 14px;
+    color: #333;
+}
 
-    .modal-content input[type="text"] {
-        width: 94%;
-        padding: 8px;
-        margin-bottom: 15px;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-        font-size: 14px;
-    }
+.modal-content input[type="text"] {
+    width: 94%;
+    padding: 8px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+}
 
-    .modal-content .buttons {
-        display: flex;
-        justify-content: space-between;
-    }
+.modal-content .buttons {
+    display: flex;
+    justify-content: space-between;
+}
 
-        .modal-content .buttons input[type="button"],
-        .modal-content .buttons input[type="submit"] {
-            padding: 8px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 14px;
-        }
+.modal-content .buttons input[type="button"],
+.modal-content .buttons input[type="submit"] {
+    padding: 8px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+}
 
-        .modal-content .buttons input[type="button"] {
-            background: #ccc;
-            color: #333;
-        }
+.modal-content .buttons input[type="button"] {
+    background: #ccc;
+    color: #333;
+}
 
-        .modal-content .buttons input[type="submit"] {
-            background: #D2B48C;
-            color: white;
-        }
+.modal-content .buttons input[type="submit"] {
+    background: #D2B48C;
+    color: white;
+}
 
-            .modal-content .buttons input[type="submit"]:hover {
-                background: #8B5E3B;
-            }
+.modal-content .buttons input[type="submit"]:hover {
+    background: #8B5E3B;
+}

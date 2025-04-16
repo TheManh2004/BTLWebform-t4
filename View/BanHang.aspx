@@ -13,6 +13,9 @@
             // Lấy dữ liệu từ localStorage
             var userName = localStorage.getItem('UserName');
             var userRole = localStorage.getItem('UserRole');
+            if (userRole == 2) {
+                document.getElementById('trangchu').style.display = 'none';
+            }
 
             // Nếu dữ liệu tồn tại, gán vào các HiddenField
             if (userName && userRole) {
@@ -40,7 +43,7 @@
             <div class="menu-toggle-container">
                 <i class="fas fa-bars" onclick="toggleHeaderMenu()"></i>
                 <div class="dropdown-menu" id="headerDropdownMenu">
-                    <div class="dropdown-item" onclick="goToHome()"><a href ="homepage.aspx" style="text-decoration:none">Trang chủ</a></div>
+                    <div class="dropdown-item" id="trangchu" onclick="goToHome()"><a href ="homepage.aspx" style="text-decoration:none">Trang chủ</a></div>
                     <div class="dropdown-item logout-item">
                         <asp:Button ID="btnLogout" runat="server" Text="Đăng xuất" OnClick="btnLogout_Click" CssClass="logout-btn" ClientIDMode="Static" />
                     </div>

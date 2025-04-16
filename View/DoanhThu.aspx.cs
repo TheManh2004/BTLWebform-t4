@@ -20,22 +20,19 @@ namespace BTL.View
             {
                 Response.Redirect("homepage.aspx");
             }
-
+            if (Session["UserRole"].ToString() != "1")
+            {
+                Response.Redirect("BanHang.aspx");
+            }
+                
             if (!IsPostBack)
             {
-                fromDate.Text = DateTime.Now.ToString("yyyy-MM-dd");
+                fromDate.Text = new DateTime(2025, 4, 11).ToString("dd/MM/yyyy");
                 toDate.Text = DateTime.Now.ToString("yyyy-MM-dd");
                 LoadRevenueData(sender, e);
             }
         }
 
-        protected void BtnLogout_Click(object sender, EventArgs e)
-        {
-            Session.Clear();
-            Session.Abandon();
-            System.Web.Security.FormsAuthentication.SignOut();
-            Response.Redirect("homepage.aspx");
-        }
 
         protected void timeRange_SelectedIndexChanged(object sender, EventArgs e)
         {
@@ -122,6 +119,25 @@ namespace BTL.View
                 lblErrorMessage.Text = "Error loading revenue data: " + ex.Message;
                 lblErrorMessage.Visible = true;
             }
+        }
+        protected void btnLogout_Click(object sender, EventArgs e)
+        {
+            // Xóa session người dùng
+            Session.Clear();  // Xóa toàn bộ session
+
+            // Xóa cookie nếu có
+            if (Request.Cookies["UserID"] != null)
+            {
+                HttpCookie cookie = new HttpCookie("UserID");
+                cookie.Expires = DateTime.Now.AddDays(-1);  // Đặt ngày hết hạn của cookie trước 1 ngày
+                Response.Cookies.Add(cookie);  // Thêm cookie đã hết hạn vào response để xóa cookie
+            }
+
+            // Xóa localStorage trên client-side
+            ScriptManager.RegisterStartupScript(this, GetType(), "clearLocalStorage", "localStorage.clear();", true);
+
+            // Chuyển hướng về trang đăng nhập
+            Response.Redirect("homepage.aspx");
         }
     }
 }

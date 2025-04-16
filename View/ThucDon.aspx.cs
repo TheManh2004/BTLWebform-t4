@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Data;
 using System.Data.SqlClient;
+using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 namespace BTL.View
@@ -14,7 +15,11 @@ namespace BTL.View
 
             if (Session["UserName"] == null)
             {
-                Response.Redirect("homepage.aspx");  // Chuyển hướng về trang đăng nhập
+                Response.Redirect("homepage.aspx");
+            }
+            if (Session["UserRole"].ToString() != "1")
+            {
+                Response.Redirect("BanHang.aspx");
             }
             if (!IsPostBack)
             {
@@ -120,11 +125,23 @@ namespace BTL.View
         }
 
         // Method to handle logout functionality
-        protected void BtnLogout_Click(object sender, EventArgs e)
+        protected void btnLogout_Click(object sender, EventArgs e)
         {
-            Session.Clear();
-            Session.Abandon();
-            System.Web.Security.FormsAuthentication.SignOut();
+            // Xóa session người dùng
+            Session.Clear();  // Xóa toàn bộ session
+
+            // Xóa cookie nếu có
+            if (Request.Cookies["UserID"] != null)
+            {
+                HttpCookie cookie = new HttpCookie("UserID");
+                cookie.Expires = DateTime.Now.AddDays(-1);  // Đặt ngày hết hạn của cookie trước 1 ngày
+                Response.Cookies.Add(cookie);  // Thêm cookie đã hết hạn vào response để xóa cookie
+            }
+
+            // Xóa localStorage trên client-side
+            ScriptManager.RegisterStartupScript(this, GetType(), "clearLocalStorage", "localStorage.clear();", true);
+
+            // Chuyển hướng về trang đăng nhập
             Response.Redirect("homepage.aspx");
         }
 

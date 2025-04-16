@@ -28,7 +28,7 @@
             <a href="qlNV.aspx">Quản lý nhân viên</a>
             <a href="NguyenLieu.aspx">Quản Lý nguyên liệu</a>
             <a href="TTCaNhan.aspx">Thông tin cá nhân</a>
-            <asp:Button ID="BtnLogout" runat="server" Text="Đăng xuất" class="btnlogout" OnClick="BtnLogout_Click" />
+            <asp:Button ID="BtnLogout" runat="server" Text="Đăng xuất" class="btnlogout" OnClick="btnLogout_Click" />
         </div>
 
         <div class="main-content">

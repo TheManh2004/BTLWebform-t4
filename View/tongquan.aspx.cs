@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Data;
 using System.Data.SqlClient;
+using System.Web;
 using System.Web.UI;
 
 namespace BTL.View
@@ -16,7 +17,11 @@ namespace BTL.View
         {
             if (Session["UserName"] == null)
             {
-                Response.Redirect("homepage.aspx");  // Chuyển hướng về trang đăng nhập
+                Response.Redirect("homepage.aspx");
+            }
+            if (Session["UserRole"].ToString() != "1")
+            {
+                Response.Redirect("BanHang.aspx");
             }
 
             LoadDashboardData();
@@ -91,11 +96,21 @@ namespace BTL.View
             }
         }
 
-        protected void BtnLogout_Click(object sender, EventArgs e)
+        protected void btnLogout_Click(object sender, EventArgs e)
         {
-            // Xóa các session khi đăng xuất
-            Session.Clear();
-            Session.Abandon();
+            // Xóa session người dùng
+            Session.Clear();  // Xóa toàn bộ session
+
+            // Xóa cookie nếu có
+            if (Request.Cookies["UserID"] != null)
+            {
+                HttpCookie cookie = new HttpCookie("UserID");
+                cookie.Expires = DateTime.Now.AddDays(-1);  // Đặt ngày hết hạn của cookie trước 1 ngày
+                Response.Cookies.Add(cookie);  // Thêm cookie đã hết hạn vào response để xóa cookie
+            }
+
+            // Xóa localStorage trên client-side
+            ScriptManager.RegisterStartupScript(this, GetType(), "clearLocalStorage", "localStorage.clear();", true);
 
             // Chuyển hướng về trang đăng nhập
             Response.Redirect("homepage.aspx");

@@ -18,7 +18,7 @@ namespace BTL.View
                 string username = Session["UserName"]?.ToString();
                 if (Session["UserName"] == null)
                 {
-                    Response.Redirect("homepage.aspx");
+                    Response.Redirect("/HomePage.aspx"); 
                 }
                 if (Session["UserRole"].ToString() != "1")
                 {
@@ -28,7 +28,7 @@ namespace BTL.View
                 // Nếu không có session (nghĩa là người dùng chưa đăng nhập), chuyển về trang đăng nhập
                 if (string.IsNullOrEmpty(username))
                 {
-                    Response.Redirect("homepage.aspx"); // Chuyển hướng về trang đăng nhập nếu chưa đăng nhập
+                    Response.Redirect("/HomePage.aspx"); // Chuyển hướng về trang đăng nhập nếu chưa đăng nhập
                 }
 
                 // Truy vấn cơ sở dữ liệu để lấy thông tin người dùng và hiển thị
@@ -58,7 +58,7 @@ namespace BTL.View
                 else
                 {
                     // Nếu không tìm thấy người dùng, chuyển về trang đăng nhập
-                    Response.Redirect("homepage.aspx");
+                    Response.Redirect("/HomePage.aspx");
                 }
             }
         }
@@ -121,7 +121,7 @@ namespace BTL.View
             _ = Session["UserName"]?.ToString();
             if (string.IsNullOrEmpty(username))
             {
-                Response.Redirect("homepage.aspx");
+                Response.Redirect("/HomePage.aspx");
                 return;
             }
 
@@ -213,7 +213,7 @@ namespace BTL.View
             ScriptManager.RegisterStartupScript(this, GetType(), "clearLocalStorage", "localStorage.clear();", true);
 
             // Chuyển hướng về trang đăng nhập
-            Response.Redirect("homepage.aspx");
+            Response.Redirect("/HomePage.aspx");
         }
     }
 }

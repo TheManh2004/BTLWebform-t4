@@ -32,7 +32,7 @@ namespace BTL.View
                     // Nếu vẫn không có thông tin hợp lệ, chuyển hướng về trang đăng nhập
                     if (string.IsNullOrEmpty(userName) || string.IsNullOrEmpty(userRole))
                     {
-                        Response.Redirect("homepage.aspx");
+                        Response.Redirect("/HomePage.aspx");
                         return;
                     }
 
@@ -215,7 +215,7 @@ namespace BTL.View
             ScriptManager.RegisterStartupScript(this, GetType(), "clearLocalStorage", "localStorage.clear();", true);
 
             // Chuyển hướng về trang đăng nhập
-            Response.Redirect("homepage.aspx");
+            Response.Redirect("/HomePage.aspx");
         }
 
         protected void btnHiddenPostBack_Click(object sender, EventArgs e)

@@ -14,7 +14,21 @@
 
     <webopt:bundlereference runat="server" path="~/Content/css" />
     <link href="~/favicon.ico" rel="shortcut icon" type="image/x-icon" />
+    <script type="text/javascript">
+    window.addEventListener('load', function () {
+        // Ẩn phần tử chứa quảng cáo cuối trang
+        const lastDiv = document.body.lastElementChild;
+        if (lastDiv && lastDiv.innerText.includes('Hosted Windows')) {
+            lastDiv.style.display = 'none';
+        }
 
+        // Ẩn logo somee.com bên góc phải (link ngoài)
+        const rightLink = document.querySelector('a[href*="somee.com"]');
+        if (rightLink) {
+            rightLink.style.display = 'none';
+        }
+    });
+    </script>
 </head>
 <body>
     <form runat="server">

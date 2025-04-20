@@ -78,7 +78,6 @@
                             <span class="total-label"><strong>Tổng cộng</strong></span>
                             <span class="total-value"><strong><asp:Label ID="lblTotalRevenue" runat="server"></asp:Label></strong></span>
                           
-                            <span class="total-value"><strong><asp:Label ID="lblTotalOrders" runat="server"></asp:Label></strong></span>
                         </div>
                     </div>
                 </div>

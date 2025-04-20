@@ -15,7 +15,7 @@ namespace BTL.View
         {
             if (Session["UserName"] == null)
             {
-                Response.Redirect("homepage.aspx");
+                Response.Redirect("/HomePage.aspx");
             }
             if (Session["UserRole"].ToString() != "1")
             {
@@ -47,7 +47,7 @@ namespace BTL.View
             ScriptManager.RegisterStartupScript(this, GetType(), "clearLocalStorage", "localStorage.clear();", true);
 
             // Chuyển hướng về trang đăng nhập
-            Response.Redirect("homepage.aspx");
+            Response.Redirect("/HomePage.aspx");
         }
 
         private void LoadFloorButtons()

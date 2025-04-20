@@ -142,7 +142,7 @@ namespace BTL.View
             ScriptManager.RegisterStartupScript(this, GetType(), "clearLocalStorage", "localStorage.clear();", true);
 
             // Chuyển hướng về trang đăng nhập
-            Response.Redirect("homepage.aspx");
+            Response.Redirect("/HomePage.aspx");
         }
 
         // Method to handle GridView RowEditing (for in-place editing)

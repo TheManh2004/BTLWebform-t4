@@ -18,7 +18,6 @@
             <div>
                 <asp:TextBox ID="password" class="input" runat="server" TextMode="Password" Placeholder="Mật khẩu" Required="true" />
             </div>
-            <a href="#" class="forgot-password">Quên mật khẩu?</a>
             <asp:Button ID="btnLogin" runat="server" class="btnLogin" Text="Đăng nhập" OnClick="btnLogin_Click" />
         </div>
     </form>

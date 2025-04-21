@@ -22,9 +22,9 @@
             <a href="tongquan.aspx">Tổng quan</a>
             <a href="SoDoBan.aspx">Sơ đồ bàn</a>
             <div class="box1">
-                <a href="DoAn-DoUong.aspx">Đồ uống, món ăn</a>
-                <i class="fa-solid fa-caret-right rotate" id="icon" onclick="toggleSubMenu(event)"></i>
-            </div>
+    <a href="DoAn-DoUong.aspx">Đồ uống, món ăn</a>
+    <i class="fa-solid fa-caret-right rotate" id="icon" onclick="toggleSubMenu(event)"></i>
+</div>
             <div class="submenu" id="submenu">
                 <a href="ThucDon.aspx">Nhóm thực đơn</a>
                 <a href="DonViTinh.aspx">Đơn vị tính</a>
@@ -64,8 +64,6 @@
                 <asp:Button ID="btnAddArea" CssClass="btn-add" runat="server" Text="+ Thêm khu vực" 
                             OnClientClick="showAddAreaModal(); return false;" OnClick="btnAddArea_Click" />
             </div>
-
-            <hr />
 
             <!-- Table Display -->
             <div class="table-container" id="tableContainer" runat="server">

@@ -73,7 +73,17 @@
         <asp:BoundField DataField="FoodCategory_id" HeaderText="STT" SortExpression="FoodCategory_id" />
         <asp:BoundField DataField="FoodCategory_name" HeaderText="Tên nhóm" SortExpression="FoodCategory_name" />
         <asp:BoundField DataField="Description" HeaderText="Mô tả" SortExpression="Description" />
-        <asp:BoundField DataField="status" HeaderText="Trạng thái" SortExpression="status" />
+        <asp:TemplateField HeaderText="Trạng thái">
+    <ItemTemplate>
+        <%# Convert.ToInt32(Eval("status")) == 1 ? "Hoạt động" : "Ngừng hoạt động" %>
+    </ItemTemplate>
+    <EditItemTemplate>
+        <asp:DropDownList ID="ddlEditStatus" runat="server">
+            <asp:ListItem Text="Hoạt động" Value="1" />
+            <asp:ListItem Text="Ngừng hoạt động" Value="0" />
+        </asp:DropDownList>
+    </EditItemTemplate>
+</asp:TemplateField>
         <asp:TemplateField HeaderText="Thao tác">
             <ItemTemplate>
                 <!-- Nút Cập nhật -->

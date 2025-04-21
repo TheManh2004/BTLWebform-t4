@@ -202,108 +202,58 @@ namespace BTL.View
             }
         }
 
-        // Xử lý xuất CSV
-        protected void btnExport_Click(object sender, EventArgs e)
-        {
-            using (SqlConnection conn = new SqlConnection(connectionString))
-            {
-                try
-                {
-                    conn.Open();
-                    string query = @"
-                     SELECT 
-                        ROW_NUMBER() OVER (ORDER BY b.Bill_id) AS STT,
-                        b.Bill_id AS MaHoaDon,
-                        CONVERT(VARCHAR, b.Date, 103) + ' ' + CONVERT(VARCHAR, b.Date, 108) AS NgayGiao,
-                        a.UserName AS NhanVien,
-                        ISNULL(SUM(bi.Price * bi.count), 0) AS TongTien,
-                        CASE 
-                            WHEN b.status = 0 THEN 'Đã thanh toán'
-                            WHEN b.status = 1 THEN 'Chưa thanh toán'
-                            ELSE 'Đã hủy'
-                        END AS TrangThai
-                    FROM Bill b
-                    LEFT JOIN Account a ON b.idAccount = a.idRole
-                    LEFT JOIN BillInfo bi ON b.Bill_id = bi.idBill
-                    GROUP BY b.Bill_id, b.Date, a.UserName, b.status
-                    ORDER BY b.Date DESC";
-                    SqlDataAdapter da = new SqlDataAdapter(query, conn);
-                    DataTable dt = new DataTable();
-                    da.Fill(dt);
 
-                    StringBuilder sb = new StringBuilder();
-                    sb.AppendLine("STT,Mã hóa đơn,Ngày giao,Nhân viên,Tổng tiền,Trạng thái,Ghi chú");
 
-                    foreach (DataRow row in dt.Rows)
-                    {
-                        sb.AppendLine($"{row["STT"]},\"{row["MaHoaDon"]}\",\"{row["NgayGiao"]}\",\"{row["NhanVien"]}\",\"{row["TongTien"]}\",\"{row["TrangThai"]}\",\"{row["GhiChu"]}\"");
-                    }
-
-                    Response.Clear();
-                    Response.Buffer = true;
-                    Response.AddHeader("content-disposition", "attachment;filename=DonHang.csv");
-                    Response.Charset = "utf-8";
-                    Response.ContentType = "text/csv; charset=utf-8";
-                    Response.Output.Write(sb.ToString());
-                    Response.Flush();
-                    Response.End();
-                }
-                catch (Exception ex)
-                {
-                    ScriptManager.RegisterStartupScript(this, GetType(), "alert", $"alert('Lỗi khi xuất CSV: {ex.Message}');", true);
-                }
-            }
-        }
-
-        // Xử lý cập nhật đơn hàng
-        protected void btnUpdate_Click(object sender, EventArgs e)
-        {
-            List<string> selectedBills = new List<string>();
-            foreach (GridViewRow row in gvOrders.Rows)
-            {
-                CheckBox chkRow = (CheckBox)row.FindControl("chkRow");
-                if (chkRow != null && chkRow.Checked)
-                {
-                    selectedBills.Add(row.Cells[2].Text); // MaHoaDon
-                }
-            }
-
-            if (selectedBills.Count == 0)
-            {
-                ScriptManager.RegisterStartupScript(this, GetType(), "alert", "alert('Vui lòng chọn ít nhất một đơn hàng để cập nhật!');", true);
-                return;
-            }
-
-            // Ví dụ: Chuyển trạng thái sang "Đã hủy" cho các đơn hàng được chọn
-            using (SqlConnection conn = new SqlConnection(connectionString))
-            {
-                try
-                {
-                    conn.Open();
-                    foreach (string billId in selectedBills)
-                    {
-                        string query = "UPDATE Bill SET status = -1 WHERE Bill_id = @BillId";
-                        SqlCommand cmd = new SqlCommand(query, conn);
-                        cmd.Parameters.AddWithValue("@BillId", billId);
-                        cmd.ExecuteNonQuery();
-                    }
-
-                    ScriptManager.RegisterStartupScript(this, GetType(), "alert", "alert('Cập nhật đơn hàng thành công!');", true);
-                    LoadOrders(); // Tải lại danh sách
-                }
-                catch (Exception ex)
-                {
-                    ScriptManager.RegisterStartupScript(this, GetType(), "alert", $"alert('Lỗi khi cập nhật: {ex.Message}');", true);
-                }
-            }
-        }
 
         // Xử lý chọn dòng trong GridView
-        protected void gvOrders_SelectedIndexChanged(object sender, EventArgs e)
+        protected void gvOrders_RowCommand(object sender, GridViewCommandEventArgs e)
         {
-            string selectedBillId = gvOrders.SelectedRow.Cells[2].Text; // MaHoaDon
-            ScriptManager.RegisterStartupScript(this, GetType(), "alert", $"alert('Đã chọn đơn hàng: {selectedBillId}');", true);
-            // Có thể thêm logic hiển thị chi tiết đơn hàng nếu cần
+            if (e.CommandName == "DeleteOrder")
+            {
+                string maHoaDon = e.CommandArgument.ToString();
+
+                try
+                {
+                    XoaDonHang(maHoaDon);
+                    LoadOrders(); // Tải lại danh sách
+                    ScriptManager.RegisterStartupScript(this, GetType(), "alert", $"alert('Đã xóa đơn hàng {maHoaDon} thành công');", true);
+                }
+                catch (Exception ex)
+                {
+                    ScriptManager.RegisterStartupScript(this, GetType(), "alert", $"alert('Lỗi khi xóa: {ex.Message}');", true);
+                }
+            }
         }
+        private void XoaDonHang(string maHoaDon)
+        {
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                conn.Open();
+                SqlTransaction tran = conn.BeginTransaction();
+
+                try
+                {
+                 
+                    string deleteBillInfo = "DELETE FROM BillInfo WHERE idBill = @MaHoaDon";
+                    SqlCommand cmd1 = new SqlCommand(deleteBillInfo, conn, tran);
+                    cmd1.Parameters.AddWithValue("@MaHoaDon", maHoaDon);
+                    cmd1.ExecuteNonQuery();
+
+                    // Xóa hóa đơn
+                    string deleteBill = "DELETE FROM Bill WHERE Bill_id = @MaHoaDon";
+                    SqlCommand cmd2 = new SqlCommand(deleteBill, conn, tran);
+                    cmd2.Parameters.AddWithValue("@MaHoaDon", maHoaDon);
+                    cmd2.ExecuteNonQuery();
+
+                    tran.Commit();
+                }
+                catch
+                {
+                    tran.Rollback();
+                    throw; 
+                }
+            }
+        }
+
     }
 }

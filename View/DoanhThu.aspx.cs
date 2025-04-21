@@ -27,8 +27,15 @@ namespace BTL.View
                 
             if (!IsPostBack)
             {
-                fromDate.Text = new DateTime(2025, 4, 11).ToString("dd/MM/yyyy");
-                toDate.Text = DateTime.Now.ToString("yyyy-MM-dd");
+                // Mặc định chọn "Trong tháng"
+                timeRange.SelectedValue = "month";
+
+                DateTime today = DateTime.Now;
+                DateTime startOfMonth = new DateTime(today.Year, today.Month, 1);
+                DateTime endOfMonth = startOfMonth.AddMonths(1).AddDays(-1);
+
+                fromDate.Text = startOfMonth.ToString("yyyy-MM-dd");
+                toDate.Text = endOfMonth.ToString("yyyy-MM-dd");
                 LoadRevenueData(sender, e);
             }
         }

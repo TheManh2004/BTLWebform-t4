@@ -1,4 +1,11 @@
-﻿/* Giữ nguyên CSS của bạn */
+﻿* {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font-size: 100%;
+}
+
+/* Giữ nguyên CSS của bạn */
 body {
     font-family: Arial, sans-serif;
     margin: 0;
@@ -692,6 +699,9 @@ body {
     flex-direction: column;
     border: 1px solid #D2B48C;
     animation: slideUp 0.3s ease-out;
+}
+.modal .modal-content {
+    background-color: white;
 }
 
 @keyframes slideUp {

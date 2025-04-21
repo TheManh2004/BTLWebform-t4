@@ -41,7 +41,7 @@
             </div>
             <div class="menu-container">
                 <div class="search-container">
-                    <asp:TextBox ID="txtSearch" runat="server" CssClass="search-box" placeholder="Tìm kiếm theo mã hóa đơn, nhân viên, ghi chú" />
+                    <asp:TextBox ID="txtSearch" runat="server" CssClass="search-box" placeholder="Tìm kiếm theo mã hóa đơn" />
                     <asp:Button ID="btnSearch" runat="server" Text="Tìm kiếm" CssClass="btn-search" OnClick="btnSearch_Click" />
                 </div>
                 <div class="search-container">
@@ -51,14 +51,11 @@
                         <asp:ListItem Text="Chưa thanh toán" Value="ChuaThanhToan" />
                         <asp:ListItem Text="Đã hủy" Value="DaHuy" />
                     </asp:DropDownList>
-                    <asp:Button ID="btnExport" runat="server" Text="Xuất CSV" CssClass="btn-export" OnClick="btnExport_Click" />
-                    <asp:Button ID="btnUpdate" runat="server" Text="Cập nhật" CssClass="btn-update" OnClick="btnUpdate_Click" />
                 </div>
                 <hr />
                 <!-- GridView for Orders -->
-              <asp:GridView ID="gvOrders" runat="server" AutoGenerateColumns="False" CssClass="gridview" 
-                    OnSelectedIndexChanged="gvOrders_SelectedIndexChanged" AllowPaging="True" PageSize="10" 
-                    OnPageIndexChanging="gvOrders_PageIndexChanging">
+              <asp:GridView ID="gvOrders" runat="server" AutoGenerateColumns="False" CssClass="gridview"  AllowPaging="True" PageSize="10" 
+                    OnPageIndexChanging="gvOrders_PageIndexChanging" OnRowCommand="gvOrders_RowCommand">
                     <Columns>
                         
                         <asp:BoundField DataField="STT" HeaderText="STT" />
@@ -67,7 +64,13 @@
                         <asp:BoundField DataField="NhanVien" HeaderText="Nhân viên" />
                         <asp:BoundField DataField="TongTien" HeaderText="Tổng tiền" DataFormatString="{0:N0}đ" />
                         <asp:BoundField DataField="TrangThai" HeaderText="Trạng thái" />
-                        <asp:CommandField ShowSelectButton="True" SelectText="Xóa" HeaderText="Hành động" />
+                        <asp:TemplateField HeaderText="Hành động">
+    <ItemTemplate>
+        <asp:Button ID="btnDelete" runat="server" Text="Xóa" CssClass="btn-delete"
+            CommandName="DeleteOrder" CommandArgument='<%# Eval("MaHoaDon") %>'
+            OnClientClick="return confirm('Bạn có chắc chắn muốn xóa đơn hàng này?');" />
+    </ItemTemplate>
+</asp:TemplateField>
                     </Columns>
                     <PagerStyle CssClass="gridview-pager" />
                 </asp:GridView>

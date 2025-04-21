@@ -32,7 +32,7 @@ namespace BTL.View
         {
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
-                string query = "SELECT [FoodCategory_id], [FoodCategory_name], [Description], [status] FROM [qlQuanCafe].[dbo].[FoodCategory]";
+                string query = "SELECT [FoodCategory_id], [FoodCategory_name], [Description], [status] FROM [db_ab7e88_themanh20004].[dbo].[FoodCategory]";
                 SqlDataAdapter da = new SqlDataAdapter(query, conn);
                 DataTable dt = new DataTable();
                 da.Fill(dt);
@@ -192,29 +192,17 @@ namespace BTL.View
 
         protected void GridView1_RowDataBound(object sender, GridViewRowEventArgs e)
         {
-            // Kiểm tra nếu đó là dòng đang chỉnh sửa
-            
+            if (e.Row.RowType == DataControlRowType.DataRow && GridView1.EditIndex == e.Row.RowIndex)
             {
-                // Lấy giá trị 'status' từ dòng hiện tại
                 int status = Convert.ToInt32(DataBinder.Eval(e.Row.DataItem, "status"));
-
-                // Tìm DropDownList trong dòng đang chỉnh sửa
                 DropDownList ddlEditStatus = (DropDownList)e.Row.FindControl("ddlEditStatus");
-
-                // Gán giá trị selected trong DropDownList
                 if (ddlEditStatus != null)
                 {
-                    if (status == 1)
-                    {
-                        ddlEditStatus.SelectedValue = "1"; // Hoạt động
-                    }
-                    else if (status == 0)
-                    {
-                        ddlEditStatus.SelectedValue = "0"; // Ngừng hoạt động
-                    }
+                    ddlEditStatus.SelectedValue = status.ToString();
                 }
             }
         }
+
 
 
 

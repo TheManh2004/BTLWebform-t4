@@ -33,7 +33,7 @@ namespace BTL.View
         {
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
-                string query = "SELECT [DVT_id], [DVT_name], [Description], [status] FROM [qlQuanCafe].[dbo].[DVT]";
+                string query = "SELECT [DVT_id], [DVT_name], [Description], [status] FROM [db_ab7e88_themanh20004].[dbo].[DVT]";
                 SqlDataAdapter da = new SqlDataAdapter(query, conn);
                 DataTable dt = new DataTable();
                 da.Fill(dt);
@@ -182,15 +182,10 @@ namespace BTL.View
         // Method to handle RowDataBound for status dropdown during editing
         protected void GridView1_RowDataBound(object sender, GridViewRowEventArgs e)
         {
-       
+            if (e.Row.RowType == DataControlRowType.DataRow && GridView1.EditIndex == e.Row.RowIndex)
             {
-                // Get the status of the current row
                 int status = Convert.ToInt32(DataBinder.Eval(e.Row.DataItem, "status"));
-
-                // Find the DropDownList for status
                 DropDownList ddlEditStatus = (DropDownList)e.Row.FindControl("ddlEditStatus");
-
-                // Set the selected value for the status
                 if (ddlEditStatus != null)
                 {
                     ddlEditStatus.SelectedValue = status.ToString();

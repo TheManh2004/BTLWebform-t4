@@ -34,7 +34,7 @@ namespace BTL.View
         {
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
-                string query = "SELECT [DVT_id], [DVT_Name] FROM [qlQuanCafe].[dbo].[DVT]";
+                string query = "SELECT [DVT_id], [DVT_Name] FROM [db_ab7e88_themanh20004].[dbo].[DVT]";
                 SqlCommand cmd = new SqlCommand(query, conn);
                 conn.Open();
                 SqlDataReader reader = cmd.ExecuteReader();
@@ -50,7 +50,7 @@ namespace BTL.View
         {
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
-                string query = "SELECT [FoodCategory_id], [FoodCategory_name] FROM [qlQuanCafe].[dbo].[FoodCategory]";
+                string query = "SELECT [FoodCategory_id], [FoodCategory_name] FROM [db_ab7e88_themanh20004].[dbo].[FoodCategory]";
                 SqlCommand cmd = new SqlCommand(query, conn);
                 conn.Open();
                 SqlDataReader reader = cmd.ExecuteReader();
@@ -137,7 +137,7 @@ namespace BTL.View
             // Thêm món ăn mới vào cơ sở dữ liệu
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
-                string query = "INSERT INTO [qlQuanCafe].[dbo].[Food] (Food_name, idCategory, price, idDVT, status, img) " +
+                string query = "INSERT INTO [db_ab7e88_themanh20004].[dbo].[Food] (Food_name, idCategory, price, idDVT, status, img) " +
                                "VALUES (@FoodName, @CategoryId, @Price, @UnitId, @Status, @ImagePath)";
 
                 SqlCommand cmd = new SqlCommand(query, conn);
@@ -184,7 +184,7 @@ namespace BTL.View
                             ELSE 'Ngừng hoạt động' 
                         END AS TrangThai,
                         f.img AS ImagePath
-                     FROM [qlQuanCafe].[dbo].[Food] f";
+                     FROM [db_ab7e88_themanh20004].[dbo].[Food] f";
 
                 SqlDataAdapter da = new SqlDataAdapter(query, conn);
                 DataTable dt = new DataTable();
@@ -226,7 +226,7 @@ namespace BTL.View
                             END AS TrangThai,
                             f.img AS ImagePath
 
-                         FROM [qlQuanCafe].[dbo].[Food] f
+                         FROM [db_ab7e88_themanh20004].[dbo].[Food] f
                          WHERE f.Food_name LIKE @SearchKeyword";
 
                     SqlCommand cmd = new SqlCommand(query, conn);
@@ -314,7 +314,7 @@ namespace BTL.View
                         string oldImagePath = null;
                         using (SqlConnection conn = new SqlConnection(connectionString))
                         {
-                            string query = "SELECT img FROM [qlQuanCafe].[dbo].[Food] WHERE Food_id = @FoodId";
+                            string query = "SELECT img FROM [db_ab7e88_themanh20004].[dbo].[Food] WHERE Food_id = @FoodId";
                             SqlCommand cmd = new SqlCommand(query, conn);
                             cmd.Parameters.AddWithValue("@FoodId", foodId);
                             conn.Open();
@@ -341,13 +341,13 @@ namespace BTL.View
                     string query;
                     if (imagePath != null)
                     {
-                        query = @"UPDATE [qlQuanCafe].[dbo].[Food] 
+                        query = @"UPDATE [db_ab7e88_themanh20004].[dbo].[Food] 
                                   SET Food_name = @FoodName, price = @Price, status = @Status, img = @ImagePath 
                                   WHERE Food_id = @FoodId";
                     }
                     else
                     {
-                        query = @"UPDATE [qlQuanCafe].[dbo].[Food] 
+                        query = @"UPDATE [db_ab7e88_themanh20004].[dbo].[Food] 
                                   SET Food_name = @FoodName, price = @Price, status = @Status 
                                   WHERE Food_id = @FoodId";
                     }
@@ -378,7 +378,7 @@ namespace BTL.View
             string imagePath = null;
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
-                string query = "SELECT img FROM [qlQuanCafe].[dbo].[Food] WHERE Food_id = @FoodId";
+                string query = "SELECT img FROM [db_ab7e88_themanh20004].[dbo].[Food] WHERE Food_id = @FoodId";
                 SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@FoodId", foodId);
                 conn.Open();
@@ -387,7 +387,7 @@ namespace BTL.View
 
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
-                string query = "DELETE FROM [qlQuanCafe].[dbo].[Food] WHERE Food_id = @FoodId";
+                string query = "DELETE FROM [db_ab7e88_themanh20004].[dbo].[Food] WHERE Food_id = @FoodId";
                 SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@FoodId", foodId);
                 conn.Open();

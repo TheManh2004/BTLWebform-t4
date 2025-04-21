@@ -47,7 +47,7 @@
                     <asp:DropDownList ID="timeRange" runat="server" AutoPostBack="true" OnSelectedIndexChanged="timeRange_SelectedIndexChanged">
                         <asp:ListItem Text="Trong ngày" Value="day"></asp:ListItem>
                         <asp:ListItem Text="Trong tuần" Value="week"></asp:ListItem>
-                        <asp:ListItem Text="Trong tháng" Value="month"></asp:ListItem>
+                       <asp:ListItem Text="Trong tháng" Value="month" Selected="True"></asp:ListItem>
                     </asp:DropDownList>
                     <label for="fromDate">Từ ngày:</label>
                     <asp:TextBox ID="fromDate" runat="server" CssClass="date-picker" TextMode="Date"></asp:TextBox>

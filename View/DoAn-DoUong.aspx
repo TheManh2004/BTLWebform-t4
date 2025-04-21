@@ -61,10 +61,14 @@
         <asp:ListItem Text="Đơn vị tính" Value="unit" />
     </asp:DropDownList>
     <!-- Thêm FileUpload để upload ảnh -->
-    <asp:FileUpload ID="fileUploadImage" runat="server" style="width: 95px" />
-    <!-- (Tuỳ chọn) Hiển thị ảnh đã upload để xem trước -->
-    <asp:Image ID="imgPreview" runat="server" style="max-width: 100px; max-height: 100px; display: none;" />
+    <!-- Upload ảnh -->
+<asp:FileUpload ID="fileUploadImage" runat="server" style="width: 95px" onchange="previewImage(this)" />
+
+<!-- Hiển thị ảnh xem trước -->
+
 </div>
+<asp:Image ID="imgPreview" runat="server" ClientIDMode="Static" 
+    Style="max-width: 80px; max-height: 80px; display: none;" />
                 <asp:Button ID="btnCreate" class="btnCreate" runat="server" Text="+ Tạo mới" style="width: 200px; height: 40px" OnClick="btnCreate_Click" />
             </div>
         </div>
@@ -139,6 +143,21 @@
     </form>
     <script src="../Scripts/ScriptsCode/AnUongJS.js">
    
+    </script>
+    <script>
+    function previewImage(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            
+            reader.onload = function (e) {
+                var img = document.getElementById('imgPreview');
+                img.src = e.target.result;
+                img.style.display = 'block';
+            }
+
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
     </script>
 
 </body>

@@ -43,7 +43,7 @@
             <div class="menu-toggle-container">
                 <i class="fas fa-bars" onclick="toggleHeaderMenu()"></i>
                 <div class="dropdown-menu" id="headerDropdownMenu">
-                    <div class="dropdown-item" id="trangchu" onclick="goToHome()"><a href ="homepage.aspx" style="text-decoration:none">Trang chủ</a></div>
+                    <div class="dropdown-item" id="trangchu" onclick="goToHome()"><a href ="tongquan.aspx" style="text-decoration:none">Trang chủ</a></div>
                     <div class="dropdown-item logout-item">
                         <asp:Button ID="btnLogout" runat="server" Text="Đăng xuất" OnClick="btnLogout_Click" CssClass="logout-btn" ClientIDMode="Static" />
                     </div>
@@ -131,10 +131,8 @@
                         <i class="fas fa-bars" ></i>
                         <div class="cart-dropdown-menu" id="cartDropdownMenu">
                             <div class="cart-dropdown-item" onclick="transferTable()">Chuyển bàn</div>
-                            <div class="cart-dropdown-item" onclick="mergeTable()">Gộp bàn</div>
                             <div class="cart-dropdown-item" onclick="splitTable()">Tách bàn</div>
-                            <div class="cart-dropdown-item" onclick="returnOrder()">Trả hàng</div>
-                            <div class="cart-dropdown-item" onclick="cancelOrder()">Hủy đơn hàng</div>
+
                         </div>
                     </div>
                     <asp:Button ID="btnSaveBill" runat="server" Text="Lưu Hóa Đơn"   CssClass="btn btn-save" OnClick="btnSaveBill_Click" />

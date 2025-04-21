@@ -52,7 +52,7 @@ namespace BTL.View
 
         private void LoadFloorButtons()
         {
-            string query = "SELECT Area_id, AreaName FROM [qlQuanCafe].[dbo].[Area]";
+            string query = "SELECT Area_id, AreaName FROM [db_ab7e88_themanh20004].[dbo].[Area]";
 
             try
             {
@@ -77,8 +77,8 @@ namespace BTL.View
         {
             string query = @"
                 SELECT tf.TableFood_name, tf.status, a.AreaName 
-                FROM [qlQuanCafe].[dbo].[TableFood] tf
-                INNER JOIN [qlQuanCafe].[dbo].[Area] a ON tf.idArea = a.Area_id";
+                FROM [db_ab7e88_themanh20004].[dbo].[TableFood] tf
+                INNER JOIN [db_ab7e88_themanh20004].[dbo].[Area] a ON tf.idArea = a.Area_id";
 
             try
             {
@@ -111,8 +111,8 @@ namespace BTL.View
         {
             string query = @"
                 SELECT tf.TableFood_name, tf.status, a.AreaName 
-                FROM [qlQuanCafe].[dbo].[TableFood] tf
-                INNER JOIN [qlQuanCafe].[dbo].[Area] a ON tf.idArea = a.Area_id
+                FROM [db_ab7e88_themanh20004].[dbo].[TableFood] tf
+                INNER JOIN [db_ab7e88_themanh20004].[dbo].[Area] a ON tf.idArea = a.Area_id
                 WHERE tf.idArea = @idArea";
 
             try
@@ -179,7 +179,7 @@ namespace BTL.View
                     using (SqlConnection conn = new SqlConnection(connectionString))
                     {
                         conn.Open();
-                        string query = "INSERT INTO [qlQuanCafe].[dbo].[Area] (AreaName) VALUES (@AreaName)";
+                        string query = "INSERT INTO [db_ab7e88_themanh20004].[dbo].[Area] (AreaName) VALUES (@AreaName)";
                         using (SqlCommand cmd = new SqlCommand(query, conn))
                         {
                             cmd.Parameters.AddWithValue("@AreaName", newAreaName);
@@ -230,7 +230,7 @@ namespace BTL.View
 
                         string checkQuery = @"
                             SELECT COUNT(*) 
-                            FROM [qlQuanCafe].[dbo].[TableFood]
+                            FROM [db_ab7e88_themanh20004].[dbo].[TableFood]
                             WHERE TableFood_name = @tableFoodName";
                         using (SqlCommand cmdCheck = new SqlCommand(checkQuery, conn))
                         {
@@ -245,7 +245,7 @@ namespace BTL.View
                         }
 
                         string insertQuery = @"
-                            INSERT INTO [qlQuanCafe].[dbo].[TableFood] 
+                            INSERT INTO [db_ab7e88_themanh20004].[dbo].[TableFood] 
                                 (TableFood_name, idArea, status, currentBill_id) 
                             VALUES 
                                 (@tableFoodName, @idArea, @status, NULL)";
